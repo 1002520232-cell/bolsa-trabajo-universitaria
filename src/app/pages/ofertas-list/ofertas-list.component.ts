@@ -105,13 +105,13 @@ import { HighlightDirective } from '../../shared/directives/highlight.directive'
                   <i class="bi bi-geo-alt"></i> {{ oferta.ubicacion }}
                 </small>
                 <small class="text-muted d-block">
-                  <i class="bi bi-people"></i> {{ oferta.postulaciones }} postulaciones
+                  <i class="bi bi-people"></i> {{ oferta.postulaciones ?? 0 }} postulaciones
                 </small>
                 <small class="text-muted d-block" *ngIf="oferta.salario">
                   <i class="bi bi-cash"></i> S/. {{ oferta.salario | number }}
                 </small>
                 <small class="text-muted d-block">
-                  <i class="bi bi-briefcase"></i> {{ oferta.vacantes }} vacantes
+                  <i class="bi bi-briefcase"></i> {{ oferta.vacantes ?? 0 }} vacantes
                 </small>
               </div>
             </div>

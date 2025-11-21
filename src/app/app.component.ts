@@ -10,27 +10,73 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, RouterOutlet, NavbarComponent],
   template: `
     <app-navbar></app-navbar>
-    <main>
+    <main class="main-wrapper">
       <router-outlet></router-outlet>
     </main>
-    <footer class="footer mt-auto py-4 bg-light">
-      <div class="container text-center">
-        <p class="text-muted mb-0">
-          © 2024 Bolsa de Trabajo Universitaria. Todos los derechos reservados.
-        </p>
-        <small class="text-muted">
-          Desarrollado con Angular y Firebase
-        </small>
+    <footer class="epic-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h6>BOLSA<span class="highlight">WORK</span></h6>
+            <p>Conectando talento universitario con oportunidades</p>
+          </div>
+          <div class="footer-section">
+            <p>© 2024 BolsaWork. Desarrollado con Angular + Firebase</p>
+          </div>
+        </div>
       </div>
     </footer>
   `,
   styles: [`
-    main {
+    :host {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .main-wrapper {
+      flex: 1;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
       min-height: calc(100vh - 200px);
     }
-    .footer {
+
+    .epic-footer {
+      background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2rem 0;
       margin-top: auto;
-      border-top: 1px solid #dee2e6;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-section h6 {
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight {
+      color: #667eea;
+    }
+
+    .footer-section p {
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+      }
     }
   `]
 })

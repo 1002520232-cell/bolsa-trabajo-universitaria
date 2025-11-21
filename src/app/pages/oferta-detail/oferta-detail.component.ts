@@ -210,11 +210,11 @@ export class OfertaDetailComponent implements OnInit {
   }
 
   getFechaInicio(): Date | null {
-    return this.oferta?.fechaInicio ? (this.oferta.fechaInicio as any).toDate() : null;
+    return this.oferta?.fechaInicio ? (this.oferta.fechaInicio as any)?.toDate() : null;
   }
 
   getFechaFin(): Date | null {
-    return this.oferta?.fechaFin ? (this.oferta.fechaFin as any).toDate() : null;
+    return this.oferta?.fechaFin ? (this.oferta.fechaFin as any)?.toDate() : null;
   }
 
   async postularse(): Promise<void> {
