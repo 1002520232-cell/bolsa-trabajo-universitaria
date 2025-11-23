@@ -11,4 +11,5 @@ export interface Empresa {
   sector?: string;
   ruc?: string;
   createdBy?: string;
+  imagenUrl?: string;
 }

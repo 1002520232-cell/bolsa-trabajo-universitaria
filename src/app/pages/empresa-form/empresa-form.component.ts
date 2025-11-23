@@ -238,7 +238,7 @@ export class EmpresaFormComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.empresaForm.valid) {
       this.loading = true;
       this.errorMessage = '';
@@ -247,31 +247,27 @@ export class EmpresaFormComponent implements OnInit {
       const empresaData = this.empresaForm.value;
 
       if (this.isEditMode && this.empresaId) {
-        this.empresasService.updateEmpresa(this.empresaId, empresaData).subscribe({
-          next: () => {
-            this.loading = false;
-            this.successMessage = 'Empresa actualizada exitosamente';
-            setTimeout(() => this.router.navigate(['/empresas', this.empresaId]), 2000);
-          },
-          error: (error) => {
-            this.loading = false;
-            console.error('Error al actualizar:', error);
-            this.errorMessage = 'Error al actualizar la empresa';
-          }
-        });
+        try {
+          await this.empresasService.updateEmpresa(this.empresaId, empresaData);
+          this.loading = false;
+          this.successMessage = 'Empresa actualizada exitosamente';
+          setTimeout(() => this.router.navigate(['/empresas', this.empresaId!]), 2000);
+        } catch (error: any) {
+          this.loading = false;
+          console.error('Error al actualizar:', error);
+          this.errorMessage = 'Error al actualizar la empresa';
+        }
       } else {
-        this.empresasService.createEmpresa(empresaData).subscribe({
-          next: (id) => {
-            this.loading = false;
-            this.successMessage = 'Empresa creada exitosamente';
-            setTimeout(() => this.router.navigate(['/empresas', id]), 2000);
-          },
-          error: (error) => {
-            this.loading = false;
-            console.error('Error al crear:', error);
-            this.errorMessage = 'Error al crear la empresa';
-          }
-        });
+        try {
+          const id = await this.empresasService.createEmpresa(empresaData);
+          this.loading = false;
+          this.successMessage = 'Empresa creada exitosamente';
+          setTimeout(() => this.router.navigate(['/empresas', id]), 2000);
+        } catch (error: any) {
+          this.loading = false;
+          console.error('Error al crear:', error);
+          this.errorMessage = 'Error al crear la empresa';
+        }
       }
     }
   }

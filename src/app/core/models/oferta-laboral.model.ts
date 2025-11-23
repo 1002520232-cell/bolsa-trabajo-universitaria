@@ -20,4 +20,5 @@ export interface OfertaLaboral {
   fechaFin?: Date;
   estado?: string;
   createdAt?: any;
+  imagenUrl?: string;
 }

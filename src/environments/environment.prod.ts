@@ -1,5 +1,6 @@
-// Your web app's Firebase configuration
+// Your production environment configuration for Firebase
 export const environment = {
+  production: true,
   firebaseConfig: {
     apiKey: "AIzaSyD2F8XYIkZ5BlDwiQxQgQbmxyVMozr0od8",
     authDomain: "bolsa-trabajo-universita-d3e7f.firebaseapp.com",

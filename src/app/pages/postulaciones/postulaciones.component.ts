@@ -6,12 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { PostulacionesService } from '../../core/services/postulaciones.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Postulacion } from '../../core/models/postulacion.model';
-import { EstadoPostulacionPipe } from '../../shared/pipes/estado.pipe';
+import { EstadoPipe } from '../../shared/pipes/estado.pipe';
 
 @Component({
   selector: 'app-postulaciones',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, EstadoPostulacionPipe],
+  imports: [CommonModule, RouterModule, FormsModule, EstadoPipe],
   template: `
     <div class="container mt-4 mb-5">
       <div class="row mb-4">
@@ -106,7 +106,7 @@ import { EstadoPostulacionPipe } from '../../shared/pipes/estado.pipe';
                       'bg-success': postulacion.estado === 'aceptada',
                       'bg-danger': postulacion.estado === 'rechazada'
                     }">
-                      {{ postulacion.estado | estadoPostulacion }}
+                      {{ postulacion.estado | estado }}
                     </span>
                   </div>
 
@@ -239,7 +239,7 @@ export class PostulacionesComponent implements OnInit {
       });
     }
   }
-
+ 
   getFechaPostulacion(postulacion: Postulacion): Date {
     if (postulacion.fechaPostulacion instanceof Date) {
       return postulacion.fechaPostulacion;

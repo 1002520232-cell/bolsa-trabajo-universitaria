@@ -1,8 +1,8 @@
-// src/app/core/services/auth.service.ts
+// src/app/core/services/auth.service.ts - CON LOGS PARA DEBUG
 import { Injectable, inject } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, user, onAuthStateChanged } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, user } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc, docData } from '@angular/fire/firestore';
-import { Observable, from, of, switchMap, BehaviorSubject } from 'rxjs';
+import { Observable, from, of, switchMap } from 'rxjs';
 import { Usuario } from '../models/usuario.model';
 import { Router } from '@angular/router';
 
@@ -14,85 +14,114 @@ export class AuthService {
   private firestore = inject(Firestore);
   private router = inject(Router);
   
-  // BehaviorSubject para trackear estado de autenticación
-  private authStatusSubject = new BehaviorSubject<boolean>(false);
-  authStatus$ = this.authStatusSubject.asObservable();
-  
   currentUser$ = user(this.auth);
   
   userData$: Observable<Usuario | null> = this.currentUser$.pipe(
     switchMap(user => {
-      if (!user) {
-        this.authStatusSubject.next(false);
-        return of(null);
-      }
-      this.authStatusSubject.next(true);
+      if (!user) return of(null);
       const userDoc = doc(this.firestore, `usuarios/${user.uid}`);
       return docData(userDoc) as Observable<Usuario>;
     })
   );
 
   constructor() {
-    // Escuchar cambios en el estado de autenticación
-    onAuthStateChanged(this.auth, (user) => {
-      if (user) {
-        console.log('Usuario autenticado:', user.email);
-        this.authStatusSubject.next(true);
-      } else {
-        console.log('Usuario no autenticado');
-        this.authStatusSubject.next(false);
-      }
-    });
+    console.log('🔐 AuthService inicializado');
+    console.log('Auth objeto:', this.auth);
+    console.log('Firestore objeto:', this.firestore);
   }
 
   // Registro de nuevo usuario
   register(email: string, password: string, nombre: string, apellido: string, carrera: string): Observable<any> {
+    console.log('📝 Intentando registrar usuario:', { email, nombre, apellido, carrera });
+    
     return from(
-      createUserWithEmailAndPassword(this.auth, email, password).then(credential => {
-        const usuario: Usuario = {
-          uid: credential.user.uid,
-          email: email,
-          nombre: nombre,
-          apellido: apellido,
-          carrera: carrera,
-          rol: 'estudiante',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
-        
-        const userDoc = doc(this.firestore, `usuarios/${credential.user.uid}`);
-        return setDoc(userDoc, usuario);
-      })
+      createUserWithEmailAndPassword(this.auth, email, password)
+        .then(credential => {
+          console.log('✅ Usuario creado en Authentication:', credential.user.uid);
+          
+          const usuario: Usuario = {
+            uid: credential.user.uid,
+            email: email,
+            nombre: nombre,
+            apellido: apellido,
+            carrera: carrera,
+            rol: 'estudiante',
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          console.log('📦 Guardando en Firestore:', usuario);
+          
+          const userDoc = doc(this.firestore, `usuarios/${credential.user.uid}`);
+          return setDoc(userDoc, usuario)
+            .then(() => {
+              console.log('✅ Usuario guardado en Firestore exitosamente');
+              return credential;
+            })
+            .catch(error => {
+              console.error('❌ Error al guardar en Firestore:', error);
+              throw error;
+            });
+        })
+        .catch(error => {
+          console.error('❌ Error en Authentication:', error);
+          throw error;
+        })
     );
   }
 
   // Login
   login(email: string, password: string): Observable<any> {
-    return from(signInWithEmailAndPassword(this.auth, email, password));
+    console.log('🔑 Intentando login:', email);
+    return from(
+      signInWithEmailAndPassword(this.auth, email, password)
+        .then(credential => {
+          console.log('✅ Login exitoso:', credential.user.uid);
+          // Navegación removida para delegar a componente
+          return credential;
+        })
+        .catch(error => {
+          console.error('❌ Error en login:', error);
+          throw error;
+        })
+    );
   }
 
   // Logout
   logout(): Observable<void> {
+    console.log('👋 Cerrando sesión...');
     return from(signOut(this.auth).then(() => {
-      this.authStatusSubject.next(false);
-      this.router.navigate(['/login']);
+      console.log('✅ Sesión cerrada');
+      // Navegación removida para delegar a componente
     }));
   }
 
   // Obtener datos del usuario actual
   async getCurrentUserData(): Promise<Usuario | null> {
     const currentUser = this.auth.currentUser;
-    if (!currentUser) return null;
+    if (!currentUser) {
+      console.log('⚠️ No hay usuario autenticado');
+      return null;
+    }
     
+    console.log('📖 Obteniendo datos del usuario:', currentUser.uid);
     const userDoc = doc(this.firestore, `usuarios/${currentUser.uid}`);
     const userSnap = await getDoc(userDoc);
     
-    return userSnap.exists() ? userSnap.data() as Usuario : null;
+    if (userSnap.exists()) {
+      console.log('✅ Datos del usuario encontrados:', userSnap.data());
+      return userSnap.data() as Usuario;
+    } else {
+      console.log('⚠️ No se encontraron datos en Firestore para:', currentUser.uid);
+      return null;
+    }
   }
 
   // Verificar si el usuario está autenticado
   isAuthenticated(): boolean {
-    return this.auth.currentUser !== null;
+    const isAuth = this.auth.currentUser !== null;
+    console.log('🔍 Usuario autenticado:', isAuth);
+    return isAuth;
   }
 
   // Obtener UID del usuario actual

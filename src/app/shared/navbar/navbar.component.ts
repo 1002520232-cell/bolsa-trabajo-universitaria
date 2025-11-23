@@ -1,5 +1,5 @@
-// src/app/shared/navbar/navbar.component.ts - ESTILO EPIC GAMES
-import { Component, inject } from '@angular/core';
+// src/app/shared/navbar/navbar.component.ts - MENÚ ESTILO APUESTAS
+import { Component, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -39,7 +39,7 @@ import { filter } from 'rxjs/operators';
             class="nav-link"
             (click)="closeMenu()">
             <i class="bi bi-search"></i>
-            <span>EXPLORAR OFERTAS</span>
+            <span>EXPLORAR</span>
           </a>
           <a 
             routerLink="/empresas" 
@@ -54,52 +54,133 @@ import { filter } from 'rxjs/operators';
         <!-- User Section -->
         <div class="navbar-actions">
           <div *ngIf="(userData$ | async) as user; else guestButtons" class="user-section">
-            <div class="user-dropdown" [class.open]="dropdownOpen">
-              <button class="user-button" (click)="toggleDropdown()">
-                <div class="user-avatar">
+            <!-- User Button -->
+            <button class="user-button" (click)="toggleDropdown()" [class.active]="dropdownOpen">
+              <div class="user-avatar">
+                {{ user.nombre.charAt(0) }}{{ user.apellido.charAt(0) }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ user.nombre }}</span>
+                <span class="user-role">
+                  <i class="bi bi-star-fill"></i> {{ user.rol }}
+                </span>
+              </div>
+              <i class="bi bi-chevron-down arrow" [class.rotate]="dropdownOpen"></i>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div class="dropdown-overlay" *ngIf="dropdownOpen" (click)="closeDropdown()"></div>
+            <div class="dropdown-menu-container" *ngIf="dropdownOpen" [@slideDown]>
+              <div class="dropdown-header">
+                <div class="user-avatar-large">
                   {{ user.nombre.charAt(0) }}{{ user.apellido.charAt(0) }}
                 </div>
-                <div class="user-info">
-                  <span class="user-name">{{ user.nombre }}</span>
-                  <span class="user-email">{{ user.email }}</span>
+                <div class="user-details">
+                  <h6>{{ user.nombre }} {{ user.apellido }}</h6>
+                  <p>{{ user.email }}</p>
+                  <span class="badge-role">
+                    <i class="bi bi-shield-check"></i> {{ user.rol }}
+                  </span>
                 </div>
-                <i class="bi bi-chevron-down arrow"></i>
-              </button>
-              
-              <div class="dropdown-menu" *ngIf="dropdownOpen">
-                <a routerLink="/dashboard" class="dropdown-item" (click)="closeDropdown()">
-                  <i class="bi bi-speedometer2"></i>
-                  <span>Dashboard</span>
-                </a>
-                <a routerLink="/mis-postulaciones" class="dropdown-item" (click)="closeDropdown()">
-                  <i class="bi bi-file-text"></i>
-                  <span>Mis Postulaciones</span>
-                </a>
-                <a routerLink="/estadisticas" class="dropdown-item" (click)="closeDropdown()">
-                  <i class="bi bi-graph-up"></i>
-                  <span>Estadísticas</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a routerLink="/ofertas-form" class="dropdown-item" (click)="closeDropdown()">
-                  <i class="bi bi-plus-circle"></i>
-                  <span>Nueva Oferta</span>
-                </a>
-                <a routerLink="/empresas-form" class="dropdown-item" (click)="closeDropdown()">
-                  <i class="bi bi-plus-circle"></i>
-                  <span>Nueva Empresa</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item logout" (click)="logout()">
-                  <i class="bi bi-box-arrow-right"></i>
-                  <span>Cerrar Sesión</span>
-                </button>
               </div>
+
+              <div class="dropdown-divider"></div>
+
+              <!-- Mi Cuenta -->
+              <div class="dropdown-section">
+                <div class="section-title">MI CUENTA</div>
+                <a routerLink="/dashboard" class="dropdown-item" (click)="closeDropdown()">
+                  <div class="item-icon">
+                    <i class="bi bi-speedometer2"></i>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Dashboard</span>
+                    <span class="item-description">Panel principal</span>
+                  </div>
+                  <i class="bi bi-chevron-right item-arrow"></i>
+                </a>
+
+                <a routerLink="/mis-postulaciones" class="dropdown-item" (click)="closeDropdown()">
+                  <div class="item-icon">
+                    <i class="bi bi-file-text"></i>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Mis Postulaciones</span>
+                    <span class="item-description">Ver estado</span>
+                  </div>
+                  <i class="bi bi-chevron-right item-arrow"></i>
+                </a>
+
+                <a routerLink="/mis-ofertas" class="dropdown-item" (click)="closeDropdown()">
+                  <div class="item-icon">
+                    <i class="bi bi-briefcase-fill"></i>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Mis Ofertas</span>
+                    <span class="item-description">Gestionar publicaciones</span>
+                  </div>
+                  <i class="bi bi-chevron-right item-arrow"></i>
+                </a>
+
+                <a routerLink="/estadisticas" class="dropdown-item" (click)="closeDropdown()">
+                  <div class="item-icon">
+                    <i class="bi bi-graph-up"></i>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Estadísticas</span>
+                    <span class="item-description">Ver métricas</span>
+                  </div>
+                  <i class="bi bi-chevron-right item-arrow"></i>
+                </a>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <!-- Acciones Rápidas -->
+              <div class="dropdown-section">
+                <div class="section-title">ACCIONES RÁPIDAS</div>
+                <a routerLink="/ofertas-form" class="dropdown-item highlight" (click)="closeDropdown()">
+                  <div class="item-icon">
+                    <i class="bi bi-plus-circle"></i>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Nueva Oferta</span>
+                    <span class="item-description">Publicar trabajo</span>
+                  </div>
+                  <i class="bi bi-chevron-right item-arrow"></i>
+                </a>
+
+                <a routerLink="/empresas-form" class="dropdown-item highlight" (click)="closeDropdown()">
+                  <div class="item-icon">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Nueva Empresa</span>
+                    <span class="item-description">Registrar empresa</span>
+                  </div>
+                  <i class="bi bi-chevron-right item-arrow"></i>
+                </a>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <!-- Cerrar Sesión -->
+              <button class="dropdown-item logout" (click)="logout()">
+                <div class="item-icon">
+                  <i class="bi bi-box-arrow-right"></i>
+                </div>
+                <div class="item-content">
+                  <span class="item-title">Cerrar Sesión</span>
+                  <span class="item-description">Salir de tu cuenta</span>
+                </div>
+                <i class="bi bi-chevron-right item-arrow"></i>
+              </button>
             </div>
           </div>
 
           <ng-template #guestButtons>
             <a routerLink="/login" class="btn-secondary">INICIAR SESIÓN</a>
-            <a routerLink="/register" class="btn-primary">OBTENER ACCESO</a>
+            <a routerLink="/register" class="btn-primary">REGISTRARSE</a>
           </ng-template>
 
           <button class="menu-toggle" (click)="toggleMenu()">
@@ -161,7 +242,7 @@ import { filter } from 'rxjs/operators';
       color: #667eea;
     }
 
-    /* Navigation Menu */
+    /* Navigation */
     .navbar-menu {
       display: flex;
       gap: 0.5rem;
@@ -184,29 +265,14 @@ import { filter } from 'rxjs/operators';
       position: relative;
     }
 
-    .nav-link i {
-      font-size: 1.2rem;
-    }
-
     .nav-link:hover {
       color: white;
       background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
     }
 
     .nav-link.active {
       color: #667eea;
       background: rgba(102, 126, 234, 0.15);
-    }
-
-    .nav-link.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
     }
 
     /* User Section */
@@ -216,7 +282,7 @@ import { filter } from 'rxjs/operators';
       gap: 1rem;
     }
 
-    .user-dropdown {
+    .user-section {
       position: relative;
     }
 
@@ -233,9 +299,11 @@ import { filter } from 'rxjs/operators';
       transition: all 0.3s ease;
     }
 
-    .user-button:hover {
+    .user-button:hover,
+    .user-button.active {
       background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
+      border-color: #667eea;
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
     }
 
     .user-avatar {
@@ -248,13 +316,13 @@ import { filter } from 'rxjs/operators';
       justify-content: center;
       font-weight: 700;
       font-size: 0.9rem;
+      border: 2px solid rgba(255, 255, 255, 0.2);
     }
 
     .user-info {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      text-align: left;
     }
 
     .user-name {
@@ -262,9 +330,12 @@ import { filter } from 'rxjs/operators';
       font-size: 0.9rem;
     }
 
-    .user-email {
-      font-size: 0.75rem;
+    .user-role {
+      font-size: 0.7rem;
       color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
     }
 
     .arrow {
@@ -272,22 +343,40 @@ import { filter } from 'rxjs/operators';
       transition: transform 0.3s ease;
     }
 
-    .user-dropdown.open .arrow {
+    .arrow.rotate {
       transform: rotate(180deg);
     }
 
-    /* Dropdown Menu */
-    .dropdown-menu {
-      position: absolute;
-      top: calc(100% + 0.5rem);
+    /* Dropdown */
+    .dropdown-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       right: 0;
-      min-width: 280px;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .dropdown-menu-container {
+      position: absolute;
+      top: calc(100% + 1rem);
+      right: 0;
+      width: 380px;
+      max-height: 80vh;
+      overflow-y: auto;
       background: #1a1a1a;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 0.5rem;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+      z-index: 1000;
       animation: slideDown 0.3s ease;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
 
     @keyframes slideDown {
@@ -301,16 +390,85 @@ import { filter } from 'rxjs/operators';
       }
     }
 
+    .dropdown-header {
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .user-avatar-large {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.5rem;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      flex-shrink: 0;
+    }
+
+    .user-details {
+      flex: 1;
+    }
+
+    .user-details h6 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .user-details p {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .badge-role {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.75rem;
+      background: rgba(102, 126, 234, 0.2);
+      border: 1px solid rgba(102, 126, 234, 0.4);
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #667eea;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0.5rem 0;
+    }
+
+    .dropdown-section {
+      padding: 0.5rem;
+    }
+
+    .section-title {
+      padding: 0.75rem 1rem 0.5rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+    }
+
     .dropdown-item {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
+      gap: 1rem;
+      padding: 0.875rem 1rem;
       color: rgba(255, 255, 255, 0.8);
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 10px;
       transition: all 0.2s ease;
-      font-size: 0.9rem;
       cursor: pointer;
       background: transparent;
       border: none;
@@ -319,13 +477,58 @@ import { filter } from 'rxjs/operators';
     }
 
     .dropdown-item:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
       color: white;
+      transform: translateX(5px);
     }
 
-    .dropdown-item i {
-      width: 20px;
-      font-size: 1.1rem;
+    .dropdown-item.highlight:hover {
+      background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-left: 3px solid #667eea;
+    }
+
+    .item-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .dropdown-item:hover .item-icon {
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+    }
+
+    .item-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .item-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .item-description {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .item-arrow {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .dropdown-item:hover .item-arrow {
+      transform: translateX(5px);
+      color: #667eea;
     }
 
     .dropdown-item.logout {
@@ -336,10 +539,9 @@ import { filter } from 'rxjs/operators';
       background: rgba(255, 71, 87, 0.1);
     }
 
-    .dropdown-divider {
-      height: 1px;
-      background: rgba(255, 255, 255, 0.1);
-      margin: 0.5rem 0;
+    .dropdown-item.logout:hover .item-icon {
+      background: rgba(255, 71, 87, 0.2);
+      color: #ff4757;
     }
 
     /* Buttons */
@@ -354,6 +556,7 @@ import { filter } from 'rxjs/operators';
       transition: all 0.3s ease;
       border: none;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .btn-secondary {
@@ -388,6 +591,20 @@ import { filter } from 'rxjs/operators';
       padding: 0.5rem;
     }
 
+    /* Scrollbar */
+    .dropdown-menu-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dropdown-menu-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .dropdown-menu-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
     /* Responsive */
     @media (max-width: 992px) {
       .navbar-menu {
@@ -415,8 +632,14 @@ import { filter } from 'rxjs/operators';
       .user-info {
         display: none;
       }
+
+      .dropdown-menu-container {
+        right: -1rem;
+        width: calc(100vw - 2rem);
+      }
     }
-  `]
+  `],
+  animations: []
 })
 export class NavbarComponent {
   private authService = inject(AuthService);
@@ -433,6 +656,14 @@ export class NavbarComponent {
       this.closeMenu();
       this.closeDropdown();
     });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-section')) {
+      this.dropdownOpen = false;
+    }
   }
 
   toggleMenu(): void {
@@ -452,7 +683,7 @@ export class NavbarComponent {
   }
 
   logout(): void {
-    if (confirm('¿Estás seguro de cerrar sesión?')) {
+    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
       this.authService.logout().subscribe({
         next: () => {
           this.closeDropdown();

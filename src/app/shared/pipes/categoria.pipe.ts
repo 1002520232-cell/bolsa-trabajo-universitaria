@@ -1,4 +1,12 @@
+
 import { Pipe, PipeTransform } from '@angular/core';
+
+const categoriaMap: { [key: string]: string } = {
+  practicas: 'Prácticas',
+  'medio-tiempo': 'Medio Tiempo',
+  'tiempo-completo': 'Tiempo Completo',
+  freelance: 'Freelance'
+};
 
 @Pipe({
   name: 'categoria',
@@ -7,18 +15,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class CategoriaPipe implements PipeTransform {
 
   transform(value: string): string {
-    switch (value) {
-      case 'practicas':
-        return 'Prácticas';
-      case 'medio-tiempo':
-        return 'Medio Tiempo';
-      case 'tiempo-completo':
-        return 'Tiempo Completo';
-      case 'freelance':
-        return 'Freelance';
-      default:
-        return value;
-    }
+    return categoriaMap[value] || value;
   }
-
 }
+

@@ -1,4 +1,3 @@
-// src/app/pages/oferta-detail/oferta-detail.component.ts
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -56,7 +55,7 @@ import { CategoriaPipe } from '../../shared/pipes/categoria.pipe';
                 </div>
                 <div class="col-md-6 mb-3">
                   <p class="mb-2"><strong><i class="bi bi-people"></i> Postulaciones:</strong></p>
-                  <p class="text-muted">{{ oferta.postulaciones ?? 0 }}</p>
+                  <p class="text-muted">{{ oferta.postulaciones }}</p>
                 </div>
               </div>
 
@@ -79,11 +78,11 @@ import { CategoriaPipe } from '../../shared/pipes/categoria.pipe';
               <div class="row">
                 <div class="col-md-6" *ngIf="oferta.fechaInicio">
                   <p class="mb-2"><strong>Fecha de Inicio:</strong></p>
-                  <p class="text-muted">{{ getFechaInicio() | date:'dd/MM/yyyy' }}</p>
+                  <p class="text-muted">{{ getFecha(oferta.fechaInicio) }}</p>
                 </div>
                 <div class="col-md-6" *ngIf="oferta.fechaFin">
                   <p class="mb-2"><strong>Fecha de Cierre:</strong></p>
-                  <p class="text-muted">{{ getFechaFin() | date:'dd/MM/yyyy' }}</p>
+                  <p class="text-muted">{{ getFecha(oferta.fechaFin) }}</p>
                 </div>
               </div>
             </div>
@@ -180,7 +179,7 @@ export class OfertaDetailComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.isAuthenticated = this.authService.isAuthenticated();
-    
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.cargarOferta(id);
@@ -188,6 +187,19 @@ export class OfertaDetailComponent implements OnInit {
         await this.verificarPostulacion(id);
       }
     }
+  }
+
+  getFecha(fecha: any): string {
+    if (!fecha) {
+      return '';
+    }
+    if (fecha.toDate) {
+      return fecha.toDate().toLocaleDateString('es-ES');
+    }
+    if (fecha instanceof Date) {
+      return fecha.toLocaleDateString('es-ES');
+    }
+    return String(fecha);
   }
 
   cargarOferta(id: string): void {
@@ -209,14 +221,6 @@ export class OfertaDetailComponent implements OnInit {
     }
   }
 
-  getFechaInicio(): Date | null {
-    return this.oferta?.fechaInicio ? (this.oferta.fechaInicio as any)?.toDate() : null;
-  }
-
-  getFechaFin(): Date | null {
-    return this.oferta?.fechaFin ? (this.oferta.fechaFin as any)?.toDate() : null;
-  }
-
   async postularse(): Promise<void> {
     if (!this.oferta || this.yaPostulado) return;
 
@@ -224,38 +228,48 @@ export class OfertaDetailComponent implements OnInit {
     this.mensajeError = '';
     this.mensajeExito = '';
 
-    const userData = await this.authService.getCurrentUserData();
-    if (!userData) {
-      this.mensajeError = 'Debes iniciar sesión';
-      this.procesando = false;
-      return;
-    }
-
-    const postulacion = {
-      ofertaId: this.oferta.id!,
-      ofertaTitulo: this.oferta.titulo,
-      empresaNombre: this.oferta.empresaNombre,
-      estudianteId: userData.uid,
-      estudianteNombre: `${userData.nombre} ${userData.apellido}`,
-      estudianteEmail: userData.email,
-      estudianteCarrera: userData.carrera
-    };
-
-    this.postulacionesService.createPostulacion(postulacion).subscribe({
-      next: () => {
-        this.ofertasService.incrementarPostulaciones(this.oferta!.id!).subscribe();
-        this.yaPostulado = true;
-        this.mensajeExito = '¡Postulación enviada exitosamente!';
+    try {
+      const userData = await this.authService.getCurrentUserData();
+      if (!userData) {
+        this.mensajeError = 'Debes iniciar sesión';
         this.procesando = false;
-        if (this.oferta && this.oferta.postulaciones !== undefined) {
-          this.oferta.postulaciones++;
-        }
-      },
-      error: (error) => {
-        console.error('Error al postularse:', error);
-        this.mensajeError = 'Error al enviar postulación. Intenta nuevamente.';
-        this.procesando = false;
+        return;
       }
-    });
+
+      const postulacion = {
+        ofertaId: this.oferta.id!,
+        ofertaTitulo: this.oferta.titulo,
+        empresaNombre: this.oferta.empresaNombre,
+        estudianteId: userData.uid,
+        estudianteNombre: `${userData.nombre} ${userData.apellido}`,
+        estudianteEmail: userData.email,
+        estudianteCarrera: userData.carrera
+      };
+
+      this.postulacionesService.createPostulacion(postulacion).subscribe({
+        next: () => {
+          this.ofertasService.incrementarPostulaciones(this.oferta!.id!).then(() => {
+            this.yaPostulado = true;
+            this.mensajeExito = '¡Postulación enviada exitosamente!';
+            this.procesando = false;
+            if (this.oferta != null) {
+              this.oferta.postulaciones = (this.oferta.postulaciones ?? 0) + 1;
+            }
+          }).catch(error => {
+            console.error('Error al incrementar postulaciones:', error);
+          });
+        },
+        error: (error) => {
+          console.error('Error al postularse:', error);
+          this.mensajeError = 'Error al enviar postulación. Intenta nuevamente.';
+          this.procesando = false;
+        }
+      });
+
+    } catch (error) {
+      console.error('Error en la obtención de datos de usuario:', error);
+      this.mensajeError = 'Error interno. Por favor, intenta nuevamente.';
+      this.procesando = false;
+    }
   }
 }

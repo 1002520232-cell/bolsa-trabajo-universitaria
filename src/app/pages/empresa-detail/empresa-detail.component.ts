@@ -98,7 +98,7 @@ import { CategoriaPipe } from '../../shared/pipes/categoria.pipe';
                   <div class="d-flex justify-content-between align-items-start">
                     <div class="flex-grow-1">
                       <h6 class="mb-1">{{ oferta.titulo }}</h6>
-                      <div class="mb-2">
+              <div class="mb-2">
     <span class="badge bg-primary me-2">{{ oferta.categoria | categoria }}</span>
                         <span class="badge bg-secondary">{{ oferta.modalidad }}</span>
                       </div>
@@ -207,20 +207,18 @@ export class EmpresaDetailComponent implements OnInit {
     }
   }
 
-  eliminarEmpresa(): void {
+  async eliminarEmpresa(): Promise<void> {
     if (!this.empresa) return;
 
     if (confirm(`¿Estás seguro de eliminar la empresa "${this.empresa.nombre}"?`)) {
-      this.empresasService.deleteEmpresa(this.empresa.id!).subscribe({
-        next: () => {
-          alert('Empresa eliminada exitosamente');
-          this.router.navigate(['/empresas']);
-        },
-        error: (error) => {
-          console.error('Error al eliminar:', error);
-          alert('Error al eliminar la empresa');
-        }
-      });
+      try {
+        await this.empresasService.deleteEmpresa(this.empresa.id!);
+        alert('Empresa eliminada exitosamente');
+        this.router.navigate(['/empresas']);
+      } catch (error: any) {
+        console.error('Error al eliminar:', error);
+        alert('Error al eliminar la empresa');
+      }
     }
   }
 }

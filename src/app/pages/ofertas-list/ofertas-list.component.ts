@@ -211,11 +211,12 @@ export class OfertasListComponent implements OnInit {
 
   cargarOfertas(): void {
     this.loading = true;
-    this.ofertasService.getOfertas().subscribe({
+    this.ofertasService.listOfertasFiltered(this.searchText, this.filtroCategoria, this.filtroModalidad, this.ordenamiento).subscribe({
       next: (ofertas) => {
         this.ofertas = ofertas;
         this.ofertasFiltradas = ofertas;
         this.loading = false;
+        this.calcularTotalPages();
       },
       error: (error) => {
         console.error('Error al cargar ofertas:', error);
@@ -225,40 +226,12 @@ export class OfertasListComponent implements OnInit {
   }
 
   aplicarFiltros(): void {
-    this.ofertasFiltradas = this.ofertas.filter(oferta => {
-      const matchCategoria = !this.filtroCategoria || oferta.categoria === this.filtroCategoria;
-      const matchModalidad = !this.filtroModalidad || oferta.modalidad === this.filtroModalidad;
-      const matchSearch = !this.searchText ||
-        oferta.titulo?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        oferta.empresaNombre?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        oferta.ubicacion?.toLowerCase().includes(this.searchText.toLowerCase());
-
-      return matchCategoria && matchModalidad && matchSearch;
-    });
-    this.currentPage = 1; // Resetear página al aplicar filtros
-    this.aplicarOrdenamiento();
+    this.cargarOfertas();
+    this.currentPage = 1; // Reset page on filter apply
   }
 
   aplicarOrdenamiento(): void {
-    switch(this.ordenamiento) {
-      case 'recientes':
-        this.ofertasFiltradas.sort((a, b) =>
-          b.createdAt.toMillis() - a.createdAt.toMillis()
-        );
-        break;
-      case 'antiguas':
-        this.ofertasFiltradas.sort((a, b) =>
-          a.createdAt.toMillis() - b.createdAt.toMillis()
-        );
-        break;
-      case 'postulaciones':
-        this.ofertasFiltradas.sort((a, b) => (b.postulaciones || 0) - (a.postulaciones || 0));
-        break;
-      case 'vacantes':
-        this.ofertasFiltradas.sort((a, b) => (b.vacantes || 0) - (a.vacantes || 0));
-        break;
-    }
-    this.calcularTotalPages();
+    this.cargarOfertas();
   }
 
   limpiarFiltros(): void {
@@ -266,9 +239,8 @@ export class OfertasListComponent implements OnInit {
     this.filtroCategoria = '';
     this.filtroModalidad = '';
     this.ordenamiento = 'recientes';
-    this.ofertasFiltradas = this.ofertas;
-    this.currentPage = 1; // Resetear página al limpiar filtros
-    this.aplicarOrdenamiento();
+    this.cargarOfertas();
+    this.currentPage = 1; // Reset page on filter clear
   }
 
   // Métodos de paginación

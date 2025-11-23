@@ -167,7 +167,7 @@ export class EmpresasListComponent implements OnInit {
 
   cargarEmpresas(): void {
     this.loading = true;
-    this.empresasService.getEmpresas().subscribe({
+    this.empresasService.listEmpresasFiltered(this.searchText, this.filtroSector).subscribe({
       next: (empresas) => {
         this.empresas = empresas;
         this.empresasFiltradas = empresas;
@@ -181,20 +181,12 @@ export class EmpresasListComponent implements OnInit {
   }
 
   aplicarFiltros(): void {
-    this.empresasFiltradas = this.empresas.filter(empresa => {
-      const matchSector = !this.filtroSector || empresa.sector === this.filtroSector;
-      const matchSearch = !this.searchText || 
-        empresa.nombre.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        (empresa.sector ?? '').toLowerCase().includes(this.searchText.toLowerCase()) ||
-        empresa.ubicacion.toLowerCase().includes(this.searchText.toLowerCase());
-      
-      return matchSector && matchSearch;
-    });
+    this.cargarEmpresas();
   }
 
   limpiarFiltros(): void {
     this.searchText = '';
     this.filtroSector = '';
-    this.empresasFiltradas = this.empresas;
+    this.cargarEmpresas();
   }
 }

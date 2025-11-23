@@ -1,5 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+const estadoMap: { [key: string]: string } = {
+  pendiente: 'Pendiente',
+  aceptada: 'Aceptada',
+  rechazada: 'Rechazada'
+};
+
 @Pipe({
   name: 'estado',
   standalone: true
@@ -7,28 +13,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class EstadoPipe implements PipeTransform {
 
   transform(value: string): string {
-    switch (value) {
-      case 'pendiente':
-        return 'Pendiente';
-      case 'aceptada':
-        return 'Aceptada';
-      case 'rechazada':
-        return 'Rechazada';
-      default:
-        return value;
-    }
+    return estadoMap[value] || value;
   }
 
 }
 
-@Pipe({
-  name: 'estadoPostulacion',
-  standalone: true
-})
-export class EstadoPostulacionPipe implements PipeTransform {
-
-  transform(value: string): string {
-    return new EstadoPipe().transform(value) as string;
-  }
-
-}
