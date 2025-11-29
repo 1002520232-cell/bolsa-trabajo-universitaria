@@ -29,7 +29,7 @@ export class OfertasService {
 
   // Added method to get offers by user
   getOfertasByUser(userId: string): Observable<OfertaLaboral[]> {
-    const q = query(this.ofertasCollection, where('userId', '==', userId));
+    const q = query(this.ofertasCollection, where('createdBy', '==', userId));
     return collectionData(q, { idField: 'id' }) as Observable<OfertaLaboral[]>;
   }
 

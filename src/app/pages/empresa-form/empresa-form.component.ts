@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { EmpresasService } from '../../core/services/empresas.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-empresa-form',
@@ -189,6 +190,7 @@ export class EmpresaFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private empresasService = inject(EmpresasService);
+  private authService = inject(AuthService);
 
   empresaForm!: FormGroup;
   isEditMode = false;

@@ -1,1 +1,170 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section mb-4">
+    <h1 class="display-4">¡Bienvenido{{ user ? ', ' + user.nombre : '' }}!</h1>
+    <p class="lead">Tu panel de control para oportunidades laborales universitarias</p>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="stats-section mb-4">
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ totalApplications }}</h3>
+            <p>Postulaciones</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-briefcase"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ totalOffers }}</h3>
+            <p>Ofertas Disponibles</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ user?.carrera || 'N/A' }}</h3>
+            <p>Carrera</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ (user?.createdAt | date:'dd/MM/yyyy') || 'N/A' }}</h3>
+            <p>Miembro desde</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="row">
+    <!-- Recent Offers -->
+    <div class="col-lg-6 mb-4">
+      <div class="content-card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-briefcase me-2"></i>
+            Ofertas Recientes
+          </h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="recentOffers.length === 0" class="text-center text-muted">
+            <i class="bi bi-info-circle fs-1 mb-2"></i>
+            <p>No hay ofertas disponibles actualmente</p>
+          </div>
+          <div *ngFor="let offer of recentOffers" class="offer-item mb-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">{{ offer.titulo }}</h6>
+                <p class="mb-1 text-muted">{{ offer.empresaNombre }}</p>
+                <small class="text-muted">{{ offer.ubicacion }} • {{ offer.fechaPublicacion | date:'dd/MM/yyyy' }}</small>
+              </div>
+              <a [routerLink]="['/ofertas', offer.id]" class="btn btn-sm btn-outline-primary">Ver</a>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <a routerLink="/ofertas" class="btn btn-primary">Ver Todas las Ofertas</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="col-lg-6 mb-4">
+      <div class="content-card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-file-earmark-text me-2"></i>
+            Mis Postulaciones Recientes
+          </h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="userApplications.length === 0" class="text-center text-muted">
+            <i class="bi bi-info-circle fs-1 mb-2"></i>
+            <p>Aún no has realizado postulaciones</p>
+          </div>
+          <div *ngFor="let app of userApplications" class="application-item mb-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">{{ app.ofertaTitulo }}</h6>
+                <p class="mb-1 text-muted">{{ app.empresaNombre }}</p>
+                <small class="text-muted">{{ app.fechaPostulacion | date:'dd/MM/yyyy' }}</small>
+                <span class="badge ms-2" [ngClass]="{
+                  'bg-warning': app.estado === 'pendiente',
+                  'bg-success': app.estado === 'aceptada',
+                  'bg-danger': app.estado === 'rechazada',
+                  'bg-info': app.estado === 'revisada'
+                }">{{ app.estado | titlecase }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <a routerLink="/postulaciones" class="btn btn-primary">Ver Todas las Postulaciones</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions-section">
+    <h4 class="mb-3">Acciones Rápidas</h4>
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <a routerLink="/user-profile" class="action-card">
+          <div class="action-icon">
+            <i class="bi bi-person"></i>
+          </div>
+          <h6>Mi Perfil</h6>
+          <p>Actualiza tu información</p>
+        </a>
+      </div>
+      <div class="col-md-3 mb-3">
+        <a routerLink="/ofertas" class="action-card">
+          <div class="action-icon">
+            <i class="bi bi-search"></i>
+          </div>
+          <h6>Buscar Ofertas</h6>
+          <p>Encuentra nuevas oportunidades</p>
+        </a>
+      </div>
+      <div class="col-md-3 mb-3">
+        <a routerLink="/empresas" class="action-card">
+          <div class="action-icon">
+            <i class="bi bi-building"></i>
+          </div>
+          <h6>Ver Empresas</h6>
+          <p>Explora compañías</p>
+        </a>
+      </div>
+      <div class="col-md-3 mb-3">
+        <a routerLink="/estadisticas" class="action-card">
+          <div class="action-icon">
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <h6>Estadísticas</h6>
+          <p>Analiza tendencias</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

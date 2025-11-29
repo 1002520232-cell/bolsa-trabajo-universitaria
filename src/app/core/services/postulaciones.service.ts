@@ -83,6 +83,12 @@ export class PostulacionesService {
     }));
   }
 
+  // Obtener todas las postulaciones (para admin)
+  getAllPostulaciones(): Observable<Postulacion[]> {
+    const q = query(this.postulacionesCollection, orderBy('fechaPostulacion', 'desc'));
+    return collectionData(q, { idField: 'id' }) as Observable<Postulacion[]>;
+  }
+
   // Obtener estadísticas de postulaciones por estudiante
   async getEstadisticasEstudiante(estudianteId: string): Promise<{
     totalPostulaciones: number;

@@ -12,4 +12,5 @@ export interface Empresa {
   ruc?: string;
   createdBy?: string;
   imagenUrl?: string;
+  aprobada?: boolean; // Para aprobación por admin
 }

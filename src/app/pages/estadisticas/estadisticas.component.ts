@@ -82,9 +82,9 @@ import { OfertaLaboral } from '../../core/models/oferta-laboral.model';
                   <strong>{{ stats.pendientes }}</strong>
                 </div>
                 <div class="progress mb-3" style="height: 25px;">
-                  <div 
-                    class="progress-bar bg-warning" 
-                    [style.width.%]="getPercentage(stats.pendientes)"
+                  <div
+                    class="progress-bar bg-warning"
+                    [style.width]="' ' + getPercentage(stats.pendientes) + '%'"
                     role="progressbar">
                     {{ getPercentage(stats.pendientes) }}%
                   </div>
@@ -95,9 +95,9 @@ import { OfertaLaboral } from '../../core/models/oferta-laboral.model';
                   <strong>{{ stats.revisadas }}</strong>
                 </div>
                 <div class="progress mb-3" style="height: 25px;">
-                  <div 
-                    class="progress-bar bg-info" 
-                    [style.width.%]="getPercentage(stats.revisadas)"
+                  <div
+                    class="progress-bar bg-info"
+                    [style.width]="' ' + getPercentage(stats.revisadas) + '%'"
                     role="progressbar">
                     {{ getPercentage(stats.revisadas) }}%
                   </div>
@@ -108,9 +108,9 @@ import { OfertaLaboral } from '../../core/models/oferta-laboral.model';
                   <strong>{{ stats.aceptadas }}</strong>
                 </div>
                 <div class="progress mb-3" style="height: 25px;">
-                  <div 
-                    class="progress-bar bg-success" 
-                    [style.width.%]="getPercentage(stats.aceptadas)"
+                  <div
+                    class="progress-bar bg-success"
+                    [style.width]="' ' + getPercentage(stats.aceptadas) + '%'"
                     role="progressbar">
                     {{ getPercentage(stats.aceptadas) }}%
                   </div>
@@ -121,9 +121,9 @@ import { OfertaLaboral } from '../../core/models/oferta-laboral.model';
                   <strong>{{ stats.rechazadas }}</strong>
                 </div>
                 <div class="progress" style="height: 25px;">
-                  <div 
-                    class="progress-bar bg-danger" 
-                    [style.width.%]="getPercentage(stats.rechazadas)"
+                  <div
+                    class="progress-bar bg-danger"
+                    [style.width]="' ' + getPercentage(stats.rechazadas) + '%'"
                     role="progressbar">
                     {{ getPercentage(stats.rechazadas) }}%
                   </div>

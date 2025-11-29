@@ -81,14 +81,38 @@ import { AuthService } from '../../core/services/auth.service';
             </div>
           </div>
 
-          <!-- Carrera -->
+          <!-- Tipo de Usuario -->
           <div class="form-group">
+            <label>
+              <i class="bi bi-person-badge"></i>
+              TIPO DE USUARIO
+            </label>
+            <div class="user-type-options">
+              <label class="user-type-option">
+                <input type="radio" formControlName="rol" value="estudiante">
+                <span class="option-label">
+                  <i class="bi bi-mortarboard"></i>
+                  Estudiante
+                </span>
+              </label>
+              <label class="user-type-option">
+                <input type="radio" formControlName="rol" value="empresa">
+                <span class="option-label">
+                  <i class="bi bi-building"></i>
+                  Empresa
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Carrera (solo para estudiantes) -->
+          <div class="form-group" *ngIf="registerForm.get('rol')?.value === 'estudiante'">
             <label for="carrera">
               <i class="bi bi-book"></i>
               CARRERA
             </label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               id="carrera"
               class="form-input"
               formControlName="carrera"
@@ -96,6 +120,43 @@ import { AuthService } from '../../core/services/auth.service';
               [class.error]="registerForm.get('carrera')?.invalid && registerForm.get('carrera')?.touched">
             <div class="error-message" *ngIf="registerForm.get('carrera')?.invalid && registerForm.get('carrera')?.touched">
               <i class="bi bi-exclamation-circle"></i> La carrera es requerida
+            </div>
+          </div>
+
+          <!-- Información de Empresa (solo para empresas) -->
+          <div *ngIf="registerForm.get('rol')?.value === 'empresa'">
+            <div class="form-group">
+              <label for="empresaNombre">
+                <i class="bi bi-building"></i>
+                NOMBRE DE LA EMPRESA
+              </label>
+              <input
+                type="text"
+                id="empresaNombre"
+                class="form-input"
+                formControlName="empresaNombre"
+                placeholder="Nombre de tu empresa"
+                [class.error]="registerForm.get('empresaNombre')?.invalid && registerForm.get('empresaNombre')?.touched">
+              <div class="error-message" *ngIf="registerForm.get('empresaNombre')?.invalid && registerForm.get('empresaNombre')?.touched">
+                <i class="bi bi-exclamation-circle"></i> El nombre de la empresa es requerido
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="empresaUbicacion">
+                <i class="bi bi-geo-alt"></i>
+                UBICACIÓN
+              </label>
+              <input
+                type="text"
+                id="empresaUbicacion"
+                class="form-input"
+                formControlName="empresaUbicacion"
+                placeholder="Ciudad, País"
+                [class.error]="registerForm.get('empresaUbicacion')?.invalid && registerForm.get('empresaUbicacion')?.touched">
+              <div class="error-message" *ngIf="registerForm.get('empresaUbicacion')?.invalid && registerForm.get('empresaUbicacion')?.touched">
+                <i class="bi bi-exclamation-circle"></i> La ubicación es requerida
+              </div>
             </div>
           </div>
 
@@ -482,6 +543,59 @@ import { AuthService } from '../../core/services/auth.service';
       color: #764ba2;
     }
 
+    .user-type-options {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .user-type-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+    }
+
+    .user-type-option:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .user-type-option input[type="radio"] {
+      display: none;
+    }
+
+    .user-type-option input[type="radio"]:checked + .option-label {
+      color: #667eea;
+      font-weight: 700;
+    }
+
+    .user-type-option input[type="radio"]:checked ~ .option-label i {
+      color: #667eea;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .option-label i {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color 0.3s ease;
+    }
+
     @media (max-width: 768px) {
       .form-row {
         grid-template-columns: 1fr;
@@ -493,6 +607,10 @@ import { AuthService } from '../../core/services/auth.service';
 
       .register-header h1 {
         font-size: 1.5rem;
+      }
+
+      .user-type-options {
+        flex-direction: column;
       }
     }
   `]
@@ -516,25 +634,78 @@ export class RegisterComponent {
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      carrera: ['', Validators.required],
+      rol: ['estudiante', Validators.required], // Default to estudiante
+      carrera: [''],
+      empresaNombre: [''],
+      empresaUbicacion: [''],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
+    }, { validators: [this.passwordMatchValidator, this.conditionalValidators] });
 
     // Monitorear fuerza de contraseña
     this.registerForm.get('password')?.valueChanges.subscribe(password => {
       this.checkPasswordStrength(password);
+    });
+
+    // Monitorear cambios en el rol para actualizar validaciones
+    this.registerForm.get('rol')?.valueChanges.subscribe(rol => {
+      this.updateConditionalValidators(rol);
     });
   }
 
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    
+
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       return { passwordMismatch: true };
     }
     return null;
+  }
+
+  conditionalValidators(form: FormGroup) {
+    const rol = form.get('rol')?.value;
+    const carrera = form.get('carrera');
+    const empresaNombre = form.get('empresaNombre');
+    const empresaUbicacion = form.get('empresaUbicacion');
+
+    if (rol === 'estudiante') {
+      if (carrera && !carrera.value) {
+        return { carreraRequired: true };
+      }
+    } else if (rol === 'empresa') {
+      if (empresaNombre && !empresaNombre.value) {
+        return { empresaNombreRequired: true };
+      }
+      if (empresaUbicacion && !empresaUbicacion.value) {
+        return { empresaUbicacionRequired: true };
+      }
+    }
+    return null;
+  }
+
+  updateConditionalValidators(rol: string) {
+    const carreraControl = this.registerForm.get('carrera');
+    const empresaNombreControl = this.registerForm.get('empresaNombre');
+    const empresaUbicacionControl = this.registerForm.get('empresaUbicacion');
+
+    if (rol === 'estudiante') {
+      carreraControl?.setValidators(Validators.required);
+      empresaNombreControl?.clearValidators();
+      empresaUbicacionControl?.clearValidators();
+    } else if (rol === 'empresa') {
+      carreraControl?.clearValidators();
+      empresaNombreControl?.setValidators(Validators.required);
+      empresaUbicacionControl?.setValidators(Validators.required);
+    } else {
+      carreraControl?.clearValidators();
+      empresaNombreControl?.clearValidators();
+      empresaUbicacionControl?.clearValidators();
+    }
+
+    carreraControl?.updateValueAndValidity();
+    empresaNombreControl?.updateValueAndValidity();
+    empresaUbicacionControl?.updateValueAndValidity();
   }
 
   checkPasswordStrength(password: string): void {
@@ -575,16 +746,17 @@ export class RegisterComponent {
       this.errorMessage = '';
       this.successMessage = '';
 
-      const { email, password, nombre, apellido, carrera } = this.registerForm.value;
+      const formValue = this.registerForm.value;
+      const { email, password, nombre, apellido, rol, carrera, empresaNombre, empresaUbicacion } = formValue;
 
-      console.log('Intentando registrar usuario...', { email, nombre, apellido, carrera });
+      console.log('Intentando registrar usuario...', { email, nombre, apellido, rol, carrera, empresaNombre, empresaUbicacion });
 
-      this.authService.register(email, password, nombre, apellido, carrera).subscribe({
+      this.authService.register(email, password, nombre, apellido, rol, carrera, empresaNombre, empresaUbicacion).subscribe({
         next: () => {
           this.loading = false;
           this.successMessage = '¡Cuenta creada exitosamente! Redirigiendo...';
           console.log('Usuario registrado exitosamente');
-          
+
           setTimeout(() => {
             this.router.navigate(['/dashboard']);
           }, 2000);
@@ -592,7 +764,7 @@ export class RegisterComponent {
         error: (error) => {
           this.loading = false;
           console.error('Error al registrar:', error);
-          
+
           if (error.code === 'auth/email-already-in-use') {
             this.errorMessage = 'Este correo ya está registrado';
           } else if (error.code === 'auth/weak-password') {

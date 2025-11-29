@@ -21,4 +21,6 @@ export interface OfertaLaboral {
   estado?: string;
   createdAt?: any;
   imagenUrl?: string;
+  createdBy?: string;
+  aprobada?: boolean; // Para aprobación por admin
 }

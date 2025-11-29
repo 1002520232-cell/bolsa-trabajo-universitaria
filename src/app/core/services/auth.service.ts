@@ -1,7 +1,7 @@
 // src/app/core/services/auth.service.ts - CON LOGS PARA DEBUG
 import { Injectable, inject } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, user } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc, docData } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, getDoc, docData, collection, collectionData } from '@angular/fire/firestore';
 import { Observable, from, of, switchMap } from 'rxjs';
 import { Usuario } from '../models/usuario.model';
 import { Router } from '@angular/router';
@@ -13,9 +13,9 @@ export class AuthService {
   private auth = inject(Auth);
   private firestore = inject(Firestore);
   private router = inject(Router);
-  
+
   currentUser$ = user(this.auth);
-  
+
   userData$: Observable<Usuario | null> = this.currentUser$.pipe(
     switchMap(user => {
       if (!user) return of(null);
@@ -31,27 +31,34 @@ export class AuthService {
   }
 
   // Registro de nuevo usuario
-  register(email: string, password: string, nombre: string, apellido: string, carrera: string): Observable<any> {
-    console.log('📝 Intentando registrar usuario:', { email, nombre, apellido, carrera });
-    
+  register(email: string, password: string, nombre: string, apellido: string, rol: string, carrera?: string, empresaNombre?: string, empresaUbicacion?: string): Observable<any> {
+    console.log('📝 Intentando registrar usuario:', { email, nombre, apellido, rol, carrera, empresaNombre, empresaUbicacion });
+
     return from(
       createUserWithEmailAndPassword(this.auth, email, password)
         .then(credential => {
           console.log('✅ Usuario creado en Authentication:', credential.user.uid);
-          
+
           const usuario: Usuario = {
             uid: credential.user.uid,
             email: email,
             nombre: nombre,
             apellido: apellido,
-            carrera: carrera,
-            rol: 'estudiante',
+            rol: rol as 'estudiante' | 'empresa',
             createdAt: new Date(),
             updatedAt: new Date()
           };
-          
+
+          // Agregar campos específicos según el rol
+          if (rol === 'estudiante' && carrera) {
+            usuario.carrera = carrera;
+          } else if (rol === 'empresa') {
+            if (empresaNombre) usuario.empresaNombre = empresaNombre;
+            if (empresaUbicacion) usuario.empresaUbicacion = empresaUbicacion;
+          }
+
           console.log('📦 Guardando en Firestore:', usuario);
-          
+
           const userDoc = doc(this.firestore, `usuarios/${credential.user.uid}`);
           return setDoc(userDoc, usuario)
             .then(() => {
@@ -103,11 +110,11 @@ export class AuthService {
       console.log('⚠️ No hay usuario autenticado');
       return null;
     }
-    
+
     console.log('📖 Obteniendo datos del usuario:', currentUser.uid);
     const userDoc = doc(this.firestore, `usuarios/${currentUser.uid}`);
     const userSnap = await getDoc(userDoc);
-    
+
     if (userSnap.exists()) {
       console.log('✅ Datos del usuario encontrados:', userSnap.data());
       return userSnap.data() as Usuario;
@@ -133,5 +140,11 @@ export class AuthService {
   async updateUserProfile(userId: string, data: Partial<Usuario>): Promise<void> {
     const userDoc = doc(this.firestore, `usuarios/${userId}`);
     await setDoc(userDoc, { ...data, updatedAt: new Date() }, { merge: true });
+  }
+
+  // Obtener todos los usuarios (solo para admin)
+  getAllUsers(): Observable<Usuario[]> {
+    const usuariosCollection = collection(this.firestore, 'usuarios');
+    return collectionData(usuariosCollection, { idField: 'uid' }) as Observable<Usuario[]>;
   }
 }
