@@ -3,117 +3,16 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { OfertasService } from '../../core/services/ofertas.service';
+import { EmpresasService } from '../../core/services/empresas.service';
 import { OfertaLaboral } from '../../core/models/oferta-laboral.model';
+import { Empresa } from '../../core/models/empresa.model';
 import { CategoriaPipe } from '../../shared/pipes/categoria.pipe';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, RouterModule, CategoriaPipe],
-  template: `
-    <div class="hero-section">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-6">
-            <h1 class="display-4 fw-bold mb-4">
-              Encuentra tu próxima oportunidad laboral
-            </h1>
-            <p class="lead mb-4">
-              Conectamos estudiantes universitarios con las mejores empresas del mercado
-            </p>
-            <div class="d-flex gap-3">
-              <a routerLink="/ofertas" class="btn btn-primary btn-lg">
-                <i class="bi bi-search"></i> Ver Ofertas
-              </a>
-              <a routerLink="/register" class="btn btn-outline-primary btn-lg">
-                <i class="bi bi-person-plus"></i> Registrarse
-              </a>
-            </div>
-          </div>
-          <div class="col-lg-6 text-center">
-            <i class="bi bi-briefcase-fill hero-icon"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="container my-5">
-      <h2 class="text-center mb-5">Últimas Ofertas Publicadas</h2>
-      
-      <div class="row" *ngIf="ofertas.length > 0; else noOfertas">
-        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let oferta of ofertas.slice(0, 6)">
-          <div class="card h-100 shadow-sm hover-card">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <span class="badge bg-primary">{{ oferta.categoria | categoria }}</span>
-                <span class="badge bg-secondary">{{ oferta.modalidad }}</span>
-              </div>
-              
-              <h5 class="card-title">{{ oferta.titulo }}</h5>
-              <h6 class="card-subtitle mb-3 text-muted">
-                <i class="bi bi-building"></i> {{ oferta.empresaNombre }}
-              </h6>
-              
-              <p class="card-text text-truncate-3">
-                {{ oferta.descripcion }}
-              </p>
-              
-              <div class="mt-3">
-                <small class="text-muted">
-                  <i class="bi bi-geo-alt"></i> {{ oferta.ubicacion }}
-                </small>
-                <br>
-                <small class="text-muted">
-                  <i class="bi bi-people"></i> {{ oferta.postulaciones ?? 0 }} postulaciones
-                </small>
-              </div>
-            </div>
-            <div class="card-footer bg-transparent">
-              <a [routerLink]="['/ofertas', oferta.id]" class="btn btn-outline-primary w-100">
-                Ver Detalles
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <ng-template #noOfertas>
-        <div class="text-center py-5">
-          <i class="bi bi-inbox display-1 text-muted"></i>
-          <p class="lead text-muted mt-3">No hay ofertas disponibles</p>
-        </div>
-      </ng-template>
-
-      <div class="text-center mt-4" *ngIf="ofertas.length > 0">
-        <a routerLink="/ofertas" class="btn btn-primary btn-lg">
-          Ver Todas las Ofertas
-        </a>
-      </div>
-    </div>
-
-    <div class="features-section py-5 bg-light">
-      <div class="container">
-        <h2 class="text-center mb-5">¿Por qué elegirnos?</h2>
-        <div class="row">
-          <div class="col-md-4 text-center mb-4">
-            <i class="bi bi-shield-check feature-icon text-primary"></i>
-            <h4 class="mt-3">Empresas Verificadas</h4>
-            <p>Trabajamos solo con empresas confiables y reconocidas</p>
-          </div>
-          <div class="col-md-4 text-center mb-4">
-            <i class="bi bi-clock-history feature-icon text-primary"></i>
-            <h4 class="mt-3">Ofertas Actualizadas</h4>
-            <p>Nuevas oportunidades laborales cada día</p>
-          </div>
-          <div class="col-md-4 text-center mb-4">
-            <i class="bi bi-graph-up feature-icon text-primary"></i>
-            <h4 class="mt-3">Impulsa tu Carrera</h4>
-            <p>Encuentra prácticas y empleos acordes a tu perfil</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './home.component.html',
   styles: [`
     .hero-section {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -393,11 +292,119 @@ import { CategoriaPipe } from '../../shared/pipes/categoria.pipe';
         font-size: 8rem;
       }
     }
+
+    .videos-section {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      padding: 80px 0;
+      position: relative;
+    }
+
+    .videos-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="rgba(33,150,243,0.1)"/><circle cx="90" cy="90" r="1" fill="rgba(33,150,243,0.05)"/><circle cx="50" cy="20" r="0.5" fill="rgba(33,150,243,0.08)"/></svg>');
+    }
+
+    .videos-section h2 {
+      color: #1565c0;
+      font-weight: 800;
+      margin-bottom: 60px;
+      position: relative;
+    }
+
+    .videos-section h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(45deg, #2196f3, #1976d2);
+      border-radius: 2px;
+    }
+
+    .videos-section p {
+      color: #424242;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .video-card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .video-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .video-card h5 {
+      color: #1976d2;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .video-card p {
+      color: #616161;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .videos-section {
+        padding: 60px 0;
+      }
+
+      .videos-section h2 {
+        font-size: 2rem;
+      }
+
+      .video-card {
+        padding: 15px;
+      }
+
+      .video-wrapper {
+        padding-bottom: 50%;
+      }
+    }
   `]
 })
 export class HomeComponent implements OnInit {
   private ofertasService = inject(OfertasService);
+  private empresasService = inject(EmpresasService);
   ofertas: OfertaLaboral[] = [];
+  empresas: Empresa[] = [];
 
   ngOnInit(): void {
     this.ofertasService.getOfertas().subscribe({
@@ -405,6 +412,13 @@ export class HomeComponent implements OnInit {
         this.ofertas = ofertas;
       },
       error: (error) => console.error('Error al cargar ofertas:', error)
+    });
+
+    this.empresasService.getEmpresas().subscribe({
+      next: (empresas) => {
+        this.empresas = empresas;
+      },
+      error: (error) => console.error('Error al cargar empresas:', error)
     });
   }
 }

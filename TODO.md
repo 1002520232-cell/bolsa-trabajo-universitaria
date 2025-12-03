@@ -1,37 +1,29 @@
-# TODO: Implementar Panel de Administración
+# TODO: Agregar Inicio de Sesión con Google y Recuperación de Cuenta
 
-## Pasos a Completar
+## Información Recopilada
+- Proyecto Angular con Firebase Auth y Firestore
+- AuthService maneja autenticación con email/password
+- Login component tiene formulario de email/password
+- Firebase ya está configurado en app.config.ts
 
-### 1. Actualizar Modelos
-- [ ] Agregar campo 'aprobada' a Empresa model
-- [ ] Agregar campo 'aprobada' a OfertaLaboral model
+## Plan de Implementación
+- [ ] Agregar método `loginWithGoogle()` en AuthService
+- [ ] Agregar método `resetPassword()` en AuthService
+- [ ] Actualizar LoginComponent para incluir botón de Google y enlace de recuperación
+- [ ] Manejar usuarios nuevos de Google (crear perfil en Firestore)
+- [ ] Probar integración
 
-### 2. Crear Guard de Admin
-- [ ] Crear admin.guard.ts para verificar rol de admin
+## Archivos a Modificar
+- `src/app/core/services/auth.service.ts`: Agregar métodos de Google y reset password
+- `src/app/pages/login/login.component.ts`: Agregar UI para Google login y recuperación
+- `src/app/pages/login/login.component.html`: Actualizar template (si existe separado)
 
-### 3. Crear Componentes de Admin
-- [ ] Crear admin.component.ts (principal)
-- [ ] Crear admin-dashboard.component.ts
-- [x] Crear admin-empresas.component.ts (aprobar empresas)
-- [ ] Crear admin-ofertas.component.ts (aprobar ofertas)
-- [ ] Crear admin-usuarios.component.ts (gestionar usuarios)
-- [ ] Crear admin-postulaciones.component.ts (ver todas las postulaciones)
-- [ ] Crear admin-estadisticas.component.ts (estadísticas globales)
+## Dependencias
+- Ya tiene @angular/fire instalado
+- No se necesitan nuevas dependencias
 
-### 4. Actualizar Rutas
-- [ ] Agregar rutas de admin en app.routes.ts
-
-### 5. Actualizar Servicios
-- [ ] Agregar métodos de admin en auth.service.ts (getAllUsers)
-- [ ] Agregar métodos de admin en empresas.service.ts (approveEmpresa, getEmpresasPendientes)
-- [ ] Agregar métodos de admin en ofertas.service.ts (approveOferta, getOfertasPendientes)
-- [ ] Agregar métodos de admin en postulaciones.service.ts (getAllPostulaciones)
-
-### 6. Actualizar Navbar
-- [ ] Mostrar enlace de admin para usuarios con rol admin
-
-### 7. Actualizar Estadísticas
-- [ ] Modificar estadisticas.component.ts para mostrar globales si es admin
-
-### 8. Pruebas
-- [ ] Probar funcionalidades de admin
+## Pasos de Seguimiento
+- [ ] Configurar Google Auth Provider en Firebase Console (requiere credenciales)
+- [ ] Probar login con Google
+- [ ] Probar recuperación de contraseña
+- [ ] Verificar que usuarios de Google se guarden correctamente en Firestore

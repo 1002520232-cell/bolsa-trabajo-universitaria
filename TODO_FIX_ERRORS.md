@@ -10,5 +10,5 @@
 - [x] Agregar checks null para propiedades opcionales en postulaciones.component.ts (ofertaTitulo, empresaNombre)
 - [x] Agregar checks null para postulaciones y vacantes en ofertas-list.component.ts
 - [x] Agregar check null para postulaciones en oferta-detail.component.ts
-- [x] Agregar check null para sector en empresas-list.component.ts
+- [x] Agregar check null para sector en empresas-list.component.ts (ya implementado con *ngIf en template)
 - [x] Verificar que todos los errores estén resueltos ejecutando ng build

@@ -41,13 +41,21 @@ import { filter } from 'rxjs/operators';
             <i class="bi bi-search"></i>
             <span>EXPLORAR</span>
           </a>
-          <a 
-            routerLink="/empresas" 
+          <a
+            routerLink="/empresas"
             routerLinkActive="active"
             class="nav-link"
             (click)="closeMenu()">
             <i class="bi bi-building"></i>
             <span>EMPRESAS</span>
+          </a>
+          <a
+            routerLink="/videos-aprendizaje"
+            routerLinkActive="active"
+            class="nav-link"
+            (click)="closeMenu()">
+            <i class="bi bi-play-circle"></i>
+            <span>VIDEOS DE APRENDIZAJE</span>
           </a>
         </div>
 

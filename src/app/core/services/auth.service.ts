@@ -1,6 +1,6 @@
 // src/app/core/services/auth.service.ts - CON LOGS PARA DEBUG
 import { Injectable, inject } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, user } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, user, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc, docData, collection, collectionData } from '@angular/fire/firestore';
 import { Observable, from, of, switchMap } from 'rxjs';
 import { Usuario } from '../models/usuario.model';
@@ -146,5 +146,72 @@ export class AuthService {
   getAllUsers(): Observable<Usuario[]> {
     const usuariosCollection = collection(this.firestore, 'usuarios');
     return collectionData(usuariosCollection, { idField: 'uid' }) as Observable<Usuario[]>;
+  }
+
+  // Login con Google
+  loginWithGoogle(): Observable<any> {
+    console.log('🔑 Intentando login con Google');
+    const provider = new GoogleAuthProvider();
+    return from(
+      signInWithPopup(this.auth, provider)
+        .then(credential => {
+          console.log('✅ Login con Google exitoso:', credential.user.uid);
+          return credential;
+        })
+        .catch(error => {
+          console.error('❌ Error en login con Google:', error);
+          throw error;
+        })
+    );
+  }
+
+  // Registro con Google
+  registerWithGoogle(): Observable<any> {
+    console.log('📝 Intentando registro con Google');
+    const provider = new GoogleAuthProvider();
+    return from(
+      signInWithPopup(this.auth, provider)
+        .then(async credential => {
+          console.log('✅ Registro con Google exitoso:', credential.user.uid);
+          const userDoc = doc(this.firestore, `usuarios/${credential.user.uid}`);
+          const userSnap = await getDoc(userDoc);
+          if (!userSnap.exists()) {
+            // Create new user
+            const usuario: Usuario = {
+              uid: credential.user.uid,
+              email: credential.user.email || '',
+              nombre: credential.user.displayName?.split(' ')[0] || '',
+              apellido: credential.user.displayName?.split(' ').slice(1).join(' ') || '',
+              rol: 'estudiante', // default
+              createdAt: new Date(),
+              updatedAt: new Date()
+            };
+            await setDoc(userDoc, usuario);
+            console.log('✅ Usuario creado en Firestore desde Google');
+          } else {
+            console.log('✅ Usuario ya existe, login exitoso');
+          }
+          return credential;
+        })
+        .catch(error => {
+          console.error('❌ Error en registro con Google:', error);
+          throw error;
+        })
+    );
+  }
+
+  // Reset password
+  resetPassword(email: string): Observable<void> {
+    console.log('🔑 Enviando reset de contraseña para:', email);
+    return from(
+      sendPasswordResetEmail(this.auth, email)
+        .then(() => {
+          console.log('✅ Email de reset enviado');
+        })
+        .catch(error => {
+          console.error('❌ Error al enviar reset:', error);
+          throw error;
+        })
+    );
   }
 }

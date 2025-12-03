@@ -58,4 +58,13 @@ export class DashboardComponent implements OnInit {
       });
     }
   }
+
+  get formattedCreatedAt(): string {
+    if (!this.user?.createdAt) return 'N/A';
+    try {
+      return (this.user.createdAt as any).toDate().toLocaleDateString('es-ES');
+    } catch {
+      return 'N/A';
+    }
+  }
 }

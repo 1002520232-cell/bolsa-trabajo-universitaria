@@ -21,6 +21,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard]
@@ -35,13 +39,11 @@ export const routes: Routes = [
   },
   {
     path: 'ofertas-form',
-    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent)
   },
   {
     path: 'ofertas-form/:id',
-    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent)
   },
   {
     path: 'empresas',
@@ -63,13 +65,16 @@ export const routes: Routes = [
   },
   {
     path: 'mis-postulaciones',
-    loadComponent: () => import('./pages/postulaciones/postulaciones.component').then(m => m.PostulacionesComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import('./pages/postulaciones/postulaciones.component').then(m => m.PostulacionesComponent)
   },
   {
     path: 'estadisticas',
     loadComponent: () => import('./pages/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: 'videos-aprendizaje',
+    loadComponent: () => import('./pages/videos-aprendizaje/videos-aprendizaje.component').then(m => m.VideosAprendizajeComponent)
   },
   {
     path: '**',
@@ -78,13 +83,26 @@ export const routes: Routes = [
   {
     path: 'mis-ofertas',
     loadComponent: () => import('./pages/mis-ofertas/mis-ofertas.component').then(m => m.MisOfertasComponent),
-    canActivate: [authGuard],
     title: 'Mis Ofertas'
   },
   {
     path: 'user-profile',
     loadComponent: () => import('./pages/user-profile/user-profile.component').then(m => m.UserProfileComponent),
-    canActivate: [authGuard],
     title: 'Perfil de Usuario'
+  },
+  {
+    path: 'admin/dashboard',
+    loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/usuarios',
+    loadComponent: () => import('./pages/admin/admin-usuarios/admin-usuarios.component').then(m => m.AdminUsuariosComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/empresas',
+    loadComponent: () => import('./pages/admin/admin-empresas/admin-empresas.component').then(m => m.AdminEmpresasComponent),
+    canActivate: [authGuard]
   }
 ];

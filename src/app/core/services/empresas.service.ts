@@ -56,4 +56,14 @@ export class EmpresasService {
       })
     ) as Observable<Empresa[]>;
   }
+
+  async approveEmpresa(id: string): Promise<void> {
+    const empresaDoc = doc(this.firestore, `empresas/${id}`);
+    await updateDoc(empresaDoc, { aprobada: true });
+  }
+
+  async rejectEmpresa(id: string): Promise<void> {
+    const empresaDoc = doc(this.firestore, `empresas/${id}`);
+    await updateDoc(empresaDoc, { aprobada: false });
+  }
 }

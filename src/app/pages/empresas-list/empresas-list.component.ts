@@ -5,12 +5,12 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EmpresasService } from '../../core/services/empresas.service';
 import { Empresa } from '../../core/models/empresa.model';
-import { FilterPipe } from '../../shared/pipes/filter.pipe';
+
 
 @Component({
   selector: 'app-empresas-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, FilterPipe],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="container mt-4">
       <div class="row mb-4">
@@ -71,7 +71,7 @@ import { FilterPipe } from '../../shared/pipes/filter.pipe';
               <h5 class="card-title text-center">{{ empresa.nombre }}</h5>
               
               <div class="mb-3">
-                <span class="badge bg-primary">{{ empresa.sector ?? 'Sin sector' }}</span>
+                <span class="badge bg-primary" *ngIf="empresa.sector">{{ empresa.sector }}</span>
               </div>
               
               <p class="card-text text-truncate-3">
