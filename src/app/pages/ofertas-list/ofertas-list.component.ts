@@ -5,14 +5,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OfertasService } from '../../core/services/ofertas.service';
 import { OfertaLaboral } from '../../core/models/oferta-laboral.model';
-import { FilterPipe } from '../../shared/pipes/filter.pipe';
 import { CategoriaPipe } from '../../shared/pipes/categoria.pipe';
 import { HighlightDirective } from '../../shared/directives/highlight.directive';
 
 @Component({
   selector: 'app-ofertas-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, FilterPipe, CategoriaPipe, HighlightDirective],
+  imports: [CommonModule, RouterModule, FormsModule, CategoriaPipe, HighlightDirective],
   template: `
     <div class="container mt-4">
       <div class="row mb-4">
@@ -44,6 +43,8 @@ import { HighlightDirective } from '../../shared/directives/highlight.directive'
             <option value="medio-tiempo">Medio Tiempo</option>
             <option value="tiempo-completo">Tiempo Completo</option>
             <option value="freelance">Freelance</option>
+            <option value="becas">Becas</option>
+            <option value="voluntariado">Voluntariado</option>
           </select>
         </div>
 
@@ -197,6 +198,7 @@ export class OfertasListComponent implements OnInit {
   currentPage = 1;
   pageSize = 9; // 3x3 grid
   totalPages = 0;
+  pagesArray: number[] = [];
 
   // Getter para ofertas paginadas
   get ofertasPaginadas(): OfertaLaboral[] {
@@ -246,6 +248,7 @@ export class OfertasListComponent implements OnInit {
   // Métodos de paginación
   calcularTotalPages(): void {
     this.totalPages = Math.ceil(this.ofertasFiltradas.length / this.pageSize);
+    this.pagesArray = Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   cambiarPagina(page: number): void {

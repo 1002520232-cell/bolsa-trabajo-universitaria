@@ -4,6 +4,7 @@ import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, colle
 import { Observable, from } from 'rxjs';
 import { Postulacion } from '../models/postulacion.model';
 import { AuthService } from './auth.service';
+import { NotificationsService } from './notifications.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ import { AuthService } from './auth.service';
 export class PostulacionesService {
   private firestore = inject(Firestore);
   private authService = inject(AuthService);
+  private notificationsService = inject(NotificationsService);
   private postulacionesCollection = collection(this.firestore, 'postulaciones');
 
   // Obtener postulaciones de un estudiante
@@ -63,6 +65,42 @@ export class PostulacionesService {
       estado,
       notas,
       fechaRevision: new Date()
+    }).then(async () => {
+      // Obtener la postulación para crear notificación
+      try {
+        const postulacion = await this.getPostulacionById(id).toPromise();
+        if (postulacion) {
+          let notificationMessage = '';
+          let notificationType: 'info' | 'success' | 'warning' | 'error' = 'info';
+
+          switch (estado) {
+            case 'revisada':
+              notificationMessage = 'Tu postulación ha sido revisada.';
+              notificationType = 'info';
+              break;
+            case 'aceptada':
+              notificationMessage = '¡Felicitaciones! Tu postulación ha sido aceptada.';
+              notificationType = 'success';
+              break;
+            case 'rechazada':
+              notificationMessage = 'Tu postulación ha sido rechazada.';
+              notificationType = 'warning';
+              break;
+          }
+
+          if (notificationMessage) {
+            await this.notificationsService.createNotification({
+              userId: postulacion.estudianteId,
+              title: 'Estado de postulación actualizado',
+              message: notificationMessage,
+              type: notificationType,
+              read: false
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error creating status update notification:', error);
+      }
     }));
   }
 

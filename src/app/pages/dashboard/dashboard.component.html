@@ -6,10 +6,10 @@
   </div>
 
   <!-- Quick Stats -->
-  <div class="stats-section mb-4">
+  <div class="stats-section mb-4" @staggerCards>
     <div class="row">
       <div class="col-md-3 mb-3">
-        <div class="stat-card">
+        <div class="stat-card" @fadeInUp>
           <div class="stat-icon">
             <i class="bi bi-file-earmark-text"></i>
           </div>
@@ -126,11 +126,11 @@
   </div>
 
   <!-- Quick Actions -->
-  <div class="quick-actions-section">
+  <div class="quick-actions-section" @staggerCards>
     <h4 class="mb-3">Acciones Rápidas</h4>
     <div class="row">
       <div class="col-md-3 mb-3">
-        <a routerLink="/user-profile" class="action-card">
+        <a routerLink="/user-profile" class="action-card" @fadeInUp>
           <div class="action-icon">
             <i class="bi bi-person"></i>
           </div>
@@ -139,7 +139,7 @@
         </a>
       </div>
       <div class="col-md-3 mb-3">
-        <a routerLink="/ofertas" class="action-card">
+        <a routerLink="/ofertas" class="action-card" @fadeInUp>
           <div class="action-icon">
             <i class="bi bi-search"></i>
           </div>
@@ -148,7 +148,7 @@
         </a>
       </div>
       <div class="col-md-3 mb-3">
-        <a routerLink="/empresas" class="action-card">
+        <a routerLink="/empresas" class="action-card" @fadeInUp>
           <div class="action-icon">
             <i class="bi bi-building"></i>
           </div>
@@ -157,7 +157,7 @@
         </a>
       </div>
       <div class="col-md-3 mb-3">
-        <a routerLink="/estadisticas" class="action-card">
+        <a routerLink="/estadisticas" class="action-card" @fadeInUp>
           <div class="action-icon">
             <i class="bi bi-graph-up"></i>
           </div>

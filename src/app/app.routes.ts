@@ -1,6 +1,7 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -77,10 +78,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/videos-aprendizaje/videos-aprendizaje.component').then(m => m.VideosAprendizajeComponent)
   },
   {
-    path: '**',
-    loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent)
-  },
-  {
     path: 'mis-ofertas',
     loadComponent: () => import('./pages/mis-ofertas/mis-ofertas.component').then(m => m.MisOfertasComponent),
     title: 'Mis Ofertas'
@@ -104,5 +101,9 @@ export const routes: Routes = [
     path: 'admin/empresas',
     loadComponent: () => import('./pages/admin/admin-empresas/admin-empresas.component').then(m => m.AdminEmpresasComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent)
   }
 ];

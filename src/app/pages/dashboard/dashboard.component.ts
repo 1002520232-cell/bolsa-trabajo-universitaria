@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { trigger, state, style, transition, animate, stagger, query } from '@angular/animations';
 import { AuthService } from '../../core/services/auth.service';
 import { OfertasService } from '../../core/services/ofertas.service';
 import { PostulacionesService } from '../../core/services/postulaciones.service';
@@ -13,7 +14,26 @@ import { Postulacion } from '../../core/models/postulacion.model';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
+  animations: [
+    trigger('fadeInUp', [
+      state('in', style({ opacity: 1, transform: 'translateY(0)' })),
+      transition('void => *', [
+        style({ opacity: 0, transform: 'translateY(30px)' }),
+        animate('600ms ease-out')
+      ])
+    ]),
+    trigger('staggerCards', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(30px)' }),
+          stagger(150, [
+            animate('600ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+          ])
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);

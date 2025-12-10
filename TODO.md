@@ -1,29 +1,18 @@
-# TODO: Agregar Inicio de Sesión con Google y Recuperación de Cuenta
+# TODO: Implement Missing Requirements
 
-## Información Recopilada
-- Proyecto Angular con Firebase Auth y Firestore
-- AuthService maneja autenticación con email/password
-- Login component tiene formulario de email/password
-- Firebase ya está configurado en app.config.ts
+## Role-Based Access Control
+- [x] Create role-based guard (role.guard.ts) to restrict admin routes
+- [x] Update app.routes.ts to use role guard for admin paths
+- [ ] Test role-based access control
 
-## Plan de Implementación
-- [ ] Agregar método `loginWithGoogle()` en AuthService
-- [ ] Agregar método `resetPassword()` en AuthService
-- [ ] Actualizar LoginComponent para incluir botón de Google y enlace de recuperación
-- [ ] Manejar usuarios nuevos de Google (crear perfil en Firestore)
-- [ ] Probar integración
+## Real-Time Notifications
+- [x] Create notifications service (notifications.service.ts) with Firebase listeners
+- [x] Create notifications component (notifications.component.ts) for displaying notifications
+- [x] Integrate notifications component into app layout
+- [ ] Test real-time notifications functionality
 
-## Archivos a Modificar
-- `src/app/core/services/auth.service.ts`: Agregar métodos de Google y reset password
-- `src/app/pages/login/login.component.ts`: Agregar UI para Google login y recuperación
-- `src/app/pages/login/login.component.html`: Actualizar template (si existe separado)
-
-## Dependencias
-- Ya tiene @angular/fire instalado
-- No se necesitan nuevas dependencias
-
-## Pasos de Seguimiento
-- [ ] Configurar Google Auth Provider en Firebase Console (requiere credenciales)
-- [ ] Probar login con Google
-- [ ] Probar recuperación de contraseña
-- [ ] Verificar que usuarios de Google se guarden correctamente en Firestore
+## Angular Animations
+- [x] Apply animations to dashboard cards
+- [x] Apply animations to forms (login, register, etc.)
+- [x] Apply animations to page transitions
+- [x] Test animations on components
