@@ -86,12 +86,16 @@ import { Empresa } from '../../core/models/empresa.model';
                 <div class="row">
                   <div class="col-md-4 mb-3">
                     <label for="categoria" class="form-label">Categoría *</label>
-                    <select 
-                      class="form-select" 
+                    <select
+                      class="form-select"
                       id="categoria"
                       formControlName="categoria"
                       [class.is-invalid]="ofertaForm.get('categoria')?.invalid && ofertaForm.get('categoria')?.touched">
-                      <!-- options here -->
+                      <option value="">Seleccione una categoría</option>
+                      <option value="practicas">Prácticas</option>
+                      <option value="medio-tiempo">Medio Tiempo</option>
+                      <option value="tiempo-completo">Tiempo Completo</option>
+                      <option value="freelance">Freelance</option>
                     </select>
                   </div>
                   <!-- more form controls for modalidad, ubicacion, salario, vacantes, requisitos, fechaInicio, fechaFin -->

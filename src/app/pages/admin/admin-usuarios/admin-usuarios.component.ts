@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Usuario } from '../../../core/models/usuario.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -392,6 +392,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class AdminUsuariosComponent implements OnInit {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   usuarios$: Observable<Usuario[]> = this.authService.getAllUsers();
   activeFilter: 'all' | 'admin' | 'non-admin' = 'all';
@@ -433,8 +434,8 @@ export class AdminUsuariosComponent implements OnInit {
   }
 
   editUsuario(usuarioId: string) {
-    // TODO: Implement edit functionality
-    console.log('Editando usuario:', usuarioId);
+    // Navegar al componente de perfil pasando el uid en query params
+    this.router.navigate(['/user-profile'], { queryParams: { uid: usuarioId } });
   }
 
   async toggleRole(usuarioId: string, currentRole: string) {

@@ -150,29 +150,151 @@
   font-size: 1rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Enhanced Responsive Design */
+@media (max-width: 1200px) {
+  /* Large tablets and small desktops */
   .videos-container {
-    padding: 1rem;
+    max-width: 1200px;
+    padding: 1.75rem;
+  }
+
+  .header h1 {
+    font-size: 2.25rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+    max-width: 550px;
+  }
+
+  .videos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.75rem;
+  }
+
+  .video-thumbnail {
+    height: 190px;
+  }
+
+  .play-overlay {
+    width: 55px;
+    height: 55px;
+  }
+
+  .play-overlay i {
+    font-size: 1.375rem;
+  }
+
+  .video-info {
+    padding: 1.375rem;
+  }
+
+  .video-title {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 992px) {
+  /* Tablets */
+  .videos-container {
+    max-width: 1000px;
+    padding: 1.5rem;
   }
 
   .header h1 {
     font-size: 2rem;
   }
 
+  .header p {
+    font-size: 0.95rem;
+    max-width: 500px;
+  }
+
+  .page-logo i {
+    font-size: 3.5rem;
+  }
+
   .videos-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1.5rem;
   }
 
   .video-thumbnail {
     height: 180px;
   }
+
+  .play-overlay {
+    width: 50px;
+    height: 50px;
+  }
+
+  .play-overlay i {
+    font-size: 1.25rem;
+  }
+
+  .platform-badge {
+    padding: 0.2rem 0.625rem;
+    font-size: 0.7rem;
+  }
+
+  .video-info {
+    padding: 1.25rem;
+  }
+
+  .video-title {
+    font-size: 1rem;
+  }
+
+  .video-platform {
+    font-size: 0.8rem;
+  }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  /* Mobile landscape and small tablets */
+  .videos-container {
+    padding: 1rem;
+    max-width: none;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
   .header h1 {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
+  }
+
+  .header p {
+    font-size: 0.9rem;
+    max-width: 450px;
+  }
+
+  .page-logo i {
+    font-size: 3rem;
+  }
+
+  .videos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .video-thumbnail {
+    height: 170px;
+  }
+
+  .play-overlay {
+    width: 45px;
+    height: 45px;
+  }
+
+  .play-overlay i {
+    font-size: 1.125rem;
+  }
+
+  .platform-badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
   }
 
   .video-info {
@@ -180,6 +302,135 @@
   }
 
   .video-title {
+    font-size: 0.95rem;
+  }
+
+  .video-platform {
+    font-size: 0.75rem;
+  }
+
+  .video-platform i {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Mobile portrait */
+  .videos-container {
+    padding: 0.75rem;
+  }
+
+  .header {
+    margin-bottom: 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .header p {
+    font-size: 0.85rem;
+    max-width: 400px;
+  }
+
+  .page-logo i {
+    font-size: 2.5rem;
+  }
+
+  .videos-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .video-thumbnail {
+    height: 160px;
+  }
+
+  .play-overlay {
+    width: 40px;
+    height: 40px;
+  }
+
+  .play-overlay i {
     font-size: 1rem;
+  }
+
+  .platform-badge {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.6rem;
+  }
+
+  .video-info {
+    padding: 0.875rem;
+  }
+
+  .video-title {
+    font-size: 0.9rem;
+  }
+
+  .video-platform {
+    font-size: 0.7rem;
+  }
+
+  .video-platform i {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Small mobile */
+  .videos-container {
+    padding: 0.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.375rem;
+  }
+
+  .header p {
+    font-size: 0.8rem;
+    max-width: 350px;
+  }
+
+  .page-logo i {
+    font-size: 2.25rem;
+  }
+
+  .videos-grid {
+    gap: 0.875rem;
+  }
+
+  .video-thumbnail {
+    height: 150px;
+  }
+
+  .play-overlay {
+    width: 35px;
+    height: 35px;
+  }
+
+  .play-overlay i {
+    font-size: 0.9rem;
+  }
+
+  .platform-badge {
+    padding: 0.125rem 0.4rem;
+    font-size: 0.55rem;
+  }
+
+  .video-info {
+    padding: 0.75rem;
+  }
+
+  .video-title {
+    font-size: 0.85rem;
+  }
+
+  .video-platform {
+    font-size: 0.65rem;
+  }
+
+  .video-platform i {
+    font-size: 0.75rem;
   }
 }

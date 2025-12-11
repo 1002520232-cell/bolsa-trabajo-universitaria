@@ -52,10 +52,8 @@ export class AuthService {
           // Agregar campos específicos según el rol
           if (rol === 'estudiante' && carrera) {
             usuario.carrera = carrera;
-          } else if (rol === 'empresa') {
-            if (empresaNombre) usuario.empresaNombre = empresaNombre;
-            if (empresaUbicacion) usuario.empresaUbicacion = empresaUbicacion;
           }
+          // Company details are now optional and can be filled later
 
           console.log('📦 Guardando en Firestore:', usuario);
 
@@ -146,6 +144,20 @@ export class AuthService {
   getAllUsers(): Observable<Usuario[]> {
     const usuariosCollection = collection(this.firestore, 'usuarios');
     return collectionData(usuariosCollection, { idField: 'uid' }) as Observable<Usuario[]>;
+  }
+
+  // Obtener datos de un usuario por su UID (para que admin pueda editar otros perfiles)
+  async getUserById(userId: string): Promise<Usuario | null> {
+    console.log('🔎 Obteniendo usuario por id:', userId);
+    const userDoc = doc(this.firestore, `usuarios/${userId}`);
+    const userSnap = await getDoc(userDoc);
+    if (userSnap.exists()) {
+      console.log('✅ Usuario encontrado:', userId);
+      return userSnap.data() as Usuario;
+    } else {
+      console.warn('⚠️ Usuario no encontrado:', userId);
+      return null;
+    }
   }
 
   // Login con Google

@@ -24,17 +24,30 @@ import { filter } from 'rxjs/operators';
 
         <!-- Navigation Links -->
         <div class="navbar-menu" [class.active]="menuOpen">
-          <a 
-            routerLink="/home" 
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{exact: true}"
-            class="nav-link"
-            (click)="closeMenu()">
-            <i class="bi bi-house-door"></i>
-            <span>INICIO</span>
-          </a>
-          <a 
-            routerLink="/ofertas" 
+          <ng-container *ngIf="(userData$ | async); else guestNav">
+            <a
+              routerLink="/dashboard"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact: true}"
+              class="nav-link"
+              (click)="closeMenu()">
+              <i class="bi bi-speedometer2"></i>
+              <span>DASHBOARD</span>
+            </a>
+          </ng-container>
+          <ng-template #guestNav>
+            <a
+              routerLink="/home"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact: true}"
+              class="nav-link"
+              (click)="closeMenu()">
+              <i class="bi bi-house-door"></i>
+              <span>INICIO</span>
+            </a>
+          </ng-template>
+          <a
+            routerLink="/ofertas"
             routerLinkActive="active"
             class="nav-link"
             (click)="closeMenu()">

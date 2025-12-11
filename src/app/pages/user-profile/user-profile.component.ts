@@ -5,16 +5,20 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { StorageService } from '../../core/services/storage.service';
 import { Usuario } from '../../core/models/usuario.model';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ThemeToggleComponent],
   template: `
     <div class="profile-container" *ngIf="user; else loadingOrLoginPrompt">
       <div class="profile-header">
         <h2>Mi Perfil</h2>
+        <div class="theme-toggle-container">
+          <app-theme-toggle></app-theme-toggle>
+        </div>
         <div class="role-badge" [ngClass]="user.rol">{{ user.rol | titlecase }}</div>
       </div>
 
@@ -244,8 +248,8 @@ import { Router } from '@angular/router';
       max-width: 800px;
       margin: 2rem auto;
       padding: 2rem;
-      background: #1a1a1a;
-      color: white;
+      background: var(--bg-primary);
+      color: var(--text-primary-theme);
       border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -260,11 +264,16 @@ import { Router } from '@angular/router';
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    .theme-toggle-container {
+      margin-left: auto;
+      margin-right: 1rem;
+    }
+
     .profile-header h2 {
       margin: 0;
       font-size: 2rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -301,7 +310,7 @@ import { Router } from '@angular/router';
       height: 150px;
       border-radius: 50%;
       object-fit: cover;
-      border: 4px solid #667eea;
+      border: 4px solid var(--accent-primary);
       box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
     }
 
@@ -309,7 +318,7 @@ import { Router } from '@angular/router';
       width: 150px;
       height: 150px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
       color: white;
       display: flex;
       align-items: center;
@@ -331,7 +340,7 @@ import { Router } from '@angular/router';
       background: rgba(102, 126, 234, 0.1);
       border: 2px solid rgba(102, 126, 234, 0.3);
       border-radius: 12px;
-      color: #667eea;
+      color: var(--accent-primary);
       cursor: pointer;
       font-weight: 600;
       transition: all 0.3s ease;
@@ -339,7 +348,7 @@ import { Router } from '@angular/router';
 
     .upload-button:hover {
       background: rgba(102, 126, 234, 0.2);
-      border-color: #667eea;
+      border-color: var(--accent-primary);
       transform: translateY(-2px);
     }
 
@@ -353,7 +362,7 @@ import { Router } from '@angular/router';
 
     .form-section h3 {
       margin: 0 0 1.5rem 0;
-      color: #667eea;
+      color: var(--accent-primary);
       font-size: 1.2rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -384,7 +393,7 @@ import { Router } from '@angular/router';
     }
 
     .form-group label i {
-      color: #667eea;
+      color: var(--accent-primary);
       font-size: 1rem;
     }
 
@@ -402,7 +411,7 @@ import { Router } from '@angular/router';
     .form-input:focus, textarea:focus {
       outline: none;
       background: rgba(255, 255, 255, 0.08);
-      border-color: #667eea;
+      border-color: var(--accent-primary);
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 
@@ -436,7 +445,7 @@ import { Router } from '@angular/router';
 
     .add-skill-btn {
       padding: 0.75rem 1rem;
-      background: #667eea;
+      background: var(--accent-primary);
       border: none;
       border-radius: 8px;
       color: white;
@@ -446,7 +455,7 @@ import { Router } from '@angular/router';
     }
 
     .add-skill-btn:hover {
-      background: #5a67d8;
+      background: var(--accent-secondary);
       transform: translateY(-1px);
     }
 
@@ -464,7 +473,7 @@ import { Router } from '@angular/router';
       background: rgba(102, 126, 234, 0.2);
       border: 1px solid rgba(102, 126, 234, 0.3);
       border-radius: 20px;
-      color: #667eea;
+      color: var(--accent-primary);
       font-size: 0.85rem;
       font-weight: 600;
     }
@@ -472,7 +481,7 @@ import { Router } from '@angular/router';
     .remove-skill {
       background: none;
       border: none;
-      color: #667eea;
+      color: var(--accent-primary);
       cursor: pointer;
       padding: 0;
       font-size: 0.8rem;
@@ -531,7 +540,7 @@ import { Router } from '@angular/router';
 
     .save-button {
       padding: 1rem 2rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
       border: none;
       border-radius: 12px;
       color: white;
@@ -621,7 +630,7 @@ import { Router } from '@angular/router';
 
     .loading-container .loading-spinner {
       font-size: 3rem;
-      color: #667eea;
+      color: var(--accent-primary);
       margin-bottom: 1rem;
     }
 
@@ -644,7 +653,7 @@ import { Router } from '@angular/router';
       display: inline-block;
       margin-top: 1rem;
       padding: 0.75rem 1.5rem;
-      background: #667eea;
+      background: var(--accent-primary);
       color: white;
       text-decoration: none;
       border-radius: 8px;
@@ -653,7 +662,7 @@ import { Router } from '@angular/router';
     }
 
     .login-link:hover {
-      background: #5a67d8;
+      background: var(--accent-secondary);
       transform: translateY(-1px);
     }
 
@@ -666,29 +675,351 @@ import { Router } from '@angular/router';
       to { transform: rotate(360deg); }
     }
 
+    /* Enhanced Responsive Design */
+    @media (max-width: 1200px) {
+      /* Large tablets and small desktops */
+      .profile-container {
+        max-width: 900px;
+        margin: 1.5rem auto;
+        padding: 1.5rem;
+      }
+
+      .profile-image {
+        width: 120px;
+        height: 120px;
+      }
+
+      .profile-image-placeholder {
+        width: 120px;
+        height: 120px;
+        font-size: 3rem;
+      }
+    }
+
+    @media (max-width: 992px) {
+      /* Tablets */
+      .profile-container {
+        max-width: 700px;
+        margin: 1.5rem auto;
+        padding: 1.5rem;
+      }
+
+      .profile-header h2 {
+        font-size: 1.75rem;
+      }
+
+      .profile-image {
+        width: 120px;
+        height: 120px;
+      }
+
+      .profile-image-placeholder {
+        width: 120px;
+        height: 120px;
+        font-size: 3rem;
+      }
+
+      .form-section {
+        padding: 1.25rem;
+      }
+
+      .form-row {
+        gap: 0.75rem;
+      }
+    }
+
     @media (max-width: 768px) {
+      /* Mobile landscape and small tablets */
       .profile-container {
         margin: 1rem;
         padding: 1rem;
+        max-width: none;
       }
 
       .profile-header {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
+        padding-bottom: 0.75rem;
+      }
+
+      .profile-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .theme-toggle-container {
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      .profile-image-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .profile-image,
+      .profile-image-placeholder {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+      }
+
+      .form-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-section h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
       }
 
       .form-row {
         grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .form-group label {
+        font-size: 0.8rem;
+      }
+
+      .form-input,
+      textarea {
+        padding: 0.875rem;
+        font-size: 0.9rem;
       }
 
       .skills-input {
         flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .skills-input input {
+        padding: 0.625rem;
+        font-size: 0.85rem;
+      }
+
+      .add-skill-btn {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+      }
+
+      .skill-tag {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.75rem;
       }
 
       .cv-preview {
         flex-direction: column;
         text-align: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+      }
+
+      .cv-preview i {
+        font-size: 1.5rem;
+      }
+
+      .upload-button {
+        padding: 0.625rem 1rem;
+        font-size: 0.8rem;
+      }
+
+      .save-button {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+      }
+
+      .logout-button {
+        padding: 0.875rem;
+        font-size: 0.9rem;
+      }
+
+      .message {
+        padding: 0.875rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      /* Mobile portrait */
+      .profile-container {
+        margin: 0.5rem;
+        padding: 0.75rem;
+      }
+
+      .profile-header h2 {
+        font-size: 1.25rem;
+      }
+
+      .profile-image,
+      .profile-image-placeholder {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+      }
+
+      .form-section {
+        padding: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .form-section h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.875rem;
+      }
+
+      .form-group label {
+        font-size: 0.75rem;
+      }
+
+      .form-input,
+      textarea {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+      }
+
+      textarea {
+        min-height: 80px;
+      }
+
+      .skills-list {
+        gap: 0.375rem;
+      }
+
+      .skill-tag {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+      }
+
+      .cv-preview {
+        padding: 0.625rem;
+      }
+
+      .upload-button {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.75rem;
+      }
+
+      .save-button {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.85rem;
+      }
+
+      .logout-button {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+      }
+
+      .loading-container .loading-spinner {
+        font-size: 2rem;
+      }
+
+      .no-auth i {
+        font-size: 3rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Small mobile */
+      .profile-container {
+        margin: 0.25rem;
+        padding: 0.5rem;
+      }
+
+      .profile-header h2 {
+        font-size: 1.125rem;
+      }
+
+      .role-badge {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.7rem;
+      }
+
+      .profile-image,
+      .profile-image-placeholder {
+        width: 70px;
+        height: 70px;
+        font-size: 1.75rem;
+      }
+
+      .form-section {
+        padding: 0.625rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-section h3 {
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group label {
+        font-size: 0.7rem;
+      }
+
+      .form-input,
+      textarea {
+        padding: 0.625rem;
+        font-size: 0.8rem;
+      }
+
+      .skills-input input {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .add-skill-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+      }
+
+      .skill-tag {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+      }
+
+      .cv-preview {
+        padding: 0.5rem;
+      }
+
+      .cv-preview i {
+        font-size: 1.25rem;
+      }
+
+      .upload-button {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.7rem;
+      }
+
+      .save-button {
+        padding: 0.625rem 1rem;
+        font-size: 0.8rem;
+      }
+
+      .logout-button {
+        padding: 0.625rem;
+        font-size: 0.8rem;
+      }
+
+      .message {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      .loading-container p {
+        font-size: 0.9rem;
+      }
+
+      .login-link {
+        padding: 0.625rem 1rem;
+        font-size: 0.85rem;
       }
     }
   `]
@@ -698,6 +1029,7 @@ export class UserProfileComponent {
   private storageService = inject(StorageService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
 
   user: Usuario | null = null;
   profileImageUrl: string | null = null;
@@ -725,12 +1057,43 @@ export class UserProfileComponent {
   constructor() {
     this.loadUser();
   }
-
   async loadUser() {
     this.loading = true;
+    this.message = null;
     console.log('🔄 Cargando datos del usuario...');
     try {
-      this.user = await this.authService.getCurrentUserData();
+      const queryUid = this.activatedRoute.snapshot.queryParamMap.get('uid');
+      const currentUser = await this.authService.getCurrentUserData();
+
+      if (queryUid) {
+        // Si hay uid en query params, sólo permitir si el usuario autenticado es admin o es su propio uid
+        if (!currentUser) {
+          this.message = 'No estás autenticado.';
+          this.user = null;
+          return;
+        }
+
+        if (currentUser.uid === queryUid) {
+          this.user = currentUser;
+        } else if (currentUser.rol === 'admin') {
+          const target = await this.authService.getUserById(queryUid);
+          if (target) {
+            this.user = target;
+          } else {
+            this.message = 'Usuario no encontrado.';
+            this.user = null;
+            return;
+          }
+        } else {
+          this.message = 'No tienes permisos para editar este perfil.';
+          this.user = null;
+          return;
+        }
+      } else {
+        // No se pasó uid => cargar perfil del usuario autenticado
+        this.user = currentUser;
+      }
+
       if (this.user) {
         console.log('✅ Datos del usuario cargados:', this.user);
         this.profileImageUrl = this.user.imagenUrl || null;

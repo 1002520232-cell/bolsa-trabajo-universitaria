@@ -123,42 +123,7 @@ import { AuthService } from '../../core/services/auth.service';
             </div>
           </div>
 
-          <!-- Información de Empresa (solo para empresas) -->
-          <div *ngIf="registerForm.get('rol')?.value === 'empresa'">
-            <div class="form-group">
-              <label for="empresaNombre">
-                <i class="bi bi-building"></i>
-                NOMBRE DE LA EMPRESA
-              </label>
-              <input
-                type="text"
-                id="empresaNombre"
-                class="form-input"
-                formControlName="empresaNombre"
-                placeholder="Nombre de tu empresa"
-                [class.error]="registerForm.get('empresaNombre')?.invalid && registerForm.get('empresaNombre')?.touched">
-              <div class="error-message" *ngIf="registerForm.get('empresaNombre')?.invalid && registerForm.get('empresaNombre')?.touched">
-                <i class="bi bi-exclamation-circle"></i> El nombre de la empresa es requerido
-              </div>
-            </div>
 
-            <div class="form-group">
-              <label for="empresaUbicacion">
-                <i class="bi bi-geo-alt"></i>
-                UBICACIÓN
-              </label>
-              <input
-                type="text"
-                id="empresaUbicacion"
-                class="form-input"
-                formControlName="empresaUbicacion"
-                placeholder="Ciudad, País"
-                [class.error]="registerForm.get('empresaUbicacion')?.invalid && registerForm.get('empresaUbicacion')?.touched">
-              <div class="error-message" *ngIf="registerForm.get('empresaUbicacion')?.invalid && registerForm.get('empresaUbicacion')?.touched">
-                <i class="bi bi-exclamation-circle"></i> La ubicación es requerida
-              </div>
-            </div>
-          </div>
 
           <!-- Password -->
           <div class="form-group">
@@ -717,11 +682,11 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.email]],
       rol: ['estudiante', Validators.required], // Default to estudiante
       carrera: [''],
-      empresaNombre: [''],
-      empresaUbicacion: [''],
+      empresaNombre: [''], // Optional during registration
+      empresaUbicacion: [''], // Optional during registration
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
-    }, { validators: [this.passwordMatchValidator, this.conditionalValidators] });
+    }, { validators: [this.passwordMatchValidator] });
 
     // Monitorear fuerza de contraseña
     this.registerForm.get('password')?.valueChanges.subscribe(password => {
@@ -776,8 +741,8 @@ export class RegisterComponent {
       empresaUbicacionControl?.clearValidators();
     } else if (rol === 'empresa') {
       carreraControl?.clearValidators();
-      empresaNombreControl?.setValidators(Validators.required);
-      empresaUbicacionControl?.setValidators(Validators.required);
+      empresaNombreControl?.clearValidators();
+      empresaUbicacionControl?.clearValidators();
     } else {
       carreraControl?.clearValidators();
       empresaNombreControl?.clearValidators();

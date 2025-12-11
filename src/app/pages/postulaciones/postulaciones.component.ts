@@ -145,12 +145,46 @@ import { EstadoPipe } from '../../shared/pipes/estado.pipe';
 
       <ng-template #noResults>
         <div class="text-center py-5" *ngIf="!loading">
-          <i class="bi bi-inbox display-1 text-muted"></i>
-          <p class="lead text-muted mt-3">
+          <div class="mb-4">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+          </div>
+          <h4 class="text-muted mb-3">
             {{ searchText || filtroEstado ? 'No se encontraron postulaciones' : 'Aún no tienes postulaciones' }}
+          </h4>
+          <p class="text-muted mb-4" *ngIf="!(searchText || filtroEstado)">
+            ¡Es hora de comenzar tu búsqueda de empleo! Explora las oportunidades disponibles y postula a las que más te interesen.
           </p>
-          <a routerLink="/ofertas" class="btn btn-primary">
-            <i class="bi bi-search"></i> Buscar Ofertas
+
+          <!-- Consejos para postulantes -->
+          <div class="tips-section mb-4" *ngIf="!(searchText || filtroEstado)">
+            <h5 class="mb-3">💡 Consejos para postular</h5>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="tip-card">
+                  <i class="bi bi-file-earmark-person"></i>
+                  <h6>Prepara tu CV</h6>
+                  <p>Asegúrate de que tu currículum esté actualizado y destaque tus habilidades.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="tip-card">
+                  <i class="bi bi-chat-dots"></i>
+                  <h6>Carta de presentación</h6>
+                  <p>Escribe una carta personalizada explicando por qué eres el candidato ideal.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="tip-card">
+                  <i class="bi bi-search"></i>
+                  <h6>Investiga la empresa</h6>
+                  <p>Conoce la cultura, valores y proyectos de la empresa antes de postular.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a routerLink="/ofertas" class="btn btn-primary btn-lg">
+            <i class="bi bi-search me-2"></i> Explorar Ofertas Disponibles
           </a>
         </div>
         <div class="text-center py-5" *ngIf="loading">
