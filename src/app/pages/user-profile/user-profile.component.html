@@ -1,0 +1,236 @@
+<div class="profile-container" *ngIf="user; else loadingOrLoginPrompt">
+  <div class="profile-header">
+    <h2>Bolsa Work</h2>
+    <div class="role-badge" [ngClass]="user.rol">{{ user.rol | titlecase }}</div>
+  </div>
+
+  <!-- Profile Image Section -->
+  <div class="profile-image-section">
+    <img *ngIf="profileImageUrl; else defaultImage" [src]="profileImageUrl" alt="Profile Image" class="profile-image" />
+    <ng-template #defaultImage>
+      <div class="profile-image-placeholder">
+        <span *ngIf="avatarLabel; else personIcon" class="avatar-emoji">{{ avatarLabel }}</span>
+        <ng-template #personIcon>
+          <i class="bi bi-person-circle"></i>
+        </ng-template>
+      </div>
+    </ng-template>
+    <div class="image-upload">
+      <p class="select-avatar-label">Elige un avatar de animal:</p>
+      <div class="avatar-grid">
+        <button type="button" class="avatar-btn" *ngFor="let a of avatars" (click)="selectAvatar(a.key)" [class.active]="profileAvatarKey === a.key">
+          <span class="avatar-emoji">{{ a.label }}</span>
+        </button>
+      </div>
+      <div class="image-actions">
+        <button *ngIf="(profileImageUrl || profileAvatarKey)" type="button" class="remove-image-button" (click)="deleteProfileImage()">
+          <i class="bi bi-trash"></i>
+          Eliminar foto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+    <!-- Basic Information -->
+    <div class="form-section">
+      <h3>Información Básica</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">
+            <i class="bi bi-person"></i>
+            Nombre
+          </label>
+          <input type="text" id="nombre" formControlName="nombre" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+          <label for="apellido">
+            <i class="bi bi-person"></i>
+            Apellido
+          </label>
+          <input type="text" id="apellido" formControlName="apellido" placeholder="Tu apellido">
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="user.rol === 'estudiante'">
+        <label for="carrera">
+          <i class="bi bi-mortarboard"></i>
+          Carrera
+        </label>
+        <input type="text" id="carrera" formControlName="carrera" placeholder="Ej: Ingeniería de Sistemas">
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">
+          <i class="bi bi-telephone"></i>
+          Teléfono
+        </label>
+        <input type="tel" id="telefono" formControlName="telefono" placeholder="+57 300 123 4567">
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion">
+          <i class="bi bi-file-text"></i>
+          Descripción
+        </label>
+        <textarea id="descripcion" formControlName="descripcion" rows="4"
+          placeholder="Cuéntanos sobre ti, tus intereses y objetivos profesionales..."></textarea>
+      </div>
+    </div>
+
+    <!-- Company Information (for empresas) -->
+    <div class="form-section" *ngIf="user.rol === 'empresa'">
+      <h3>Información de la Empresa</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="empresaNombre">
+            <i class="bi bi-building"></i>
+            Nombre de la Empresa
+          </label>
+          <input type="text" id="empresaNombre" formControlName="empresaNombre" placeholder="Nombre de tu empresa">
+        </div>
+        <div class="form-group">
+          <label for="empresaUbicacion">
+            <i class="bi bi-geo-alt"></i>
+            Ubicación
+          </label>
+          <input type="text" id="empresaUbicacion" formControlName="empresaUbicacion" placeholder="Ciudad, País">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="empresaSitioWeb">
+          <i class="bi bi-globe"></i>
+          Sitio Web de la Empresa
+        </label>
+        <input type="url" id="empresaSitioWeb" formControlName="empresaSitioWeb" placeholder="https://www.tuempresa.com">
+      </div>
+
+      <div class="form-group">
+        <label for="empresaDescripcion">
+          <i class="bi bi-file-text"></i>
+          Descripción de la Empresa
+        </label>
+        <textarea id="empresaDescripcion" formControlName="empresaDescripcion" rows="4"
+          placeholder="Describe tu empresa, su misión, visión y lo que buscan en sus empleados..."></textarea>
+      </div>
+    </div>
+
+    <!-- Skills Section (for estudiantes) -->
+    <div class="form-section" *ngIf="user.rol === 'estudiante'">
+      <h3>Habilidades</h3>
+      <div class="skills-section">
+        <div class="skills-input">
+          <input type="text" [(ngModel)]="newSkill" [ngModelOptions]="{standalone: true}"
+            placeholder="Ej: JavaScript, Python, Liderazgo..." (keyup.enter)="addSkill()">
+          <button type="button" (click)="addSkill()" class="add-skill-btn">
+            <i class="bi bi-plus"></i>
+          </button>
+        </div>
+        <div class="skills-list">
+          <span *ngFor="let skill of skills; let i = index" class="skill-tag">
+            {{ skill }}
+            <button type="button" (click)="removeSkill(i)" class="remove-skill">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CV Upload Section (for estudiantes) -->
+    <div class="form-section" *ngIf="user.rol === 'estudiante'">
+      <h3>Curriculum Vitae</h3>
+      <div class="cv-section">
+        <div *ngIf="cvUrl; else noCv" class="cv-preview">
+          <i class="bi bi-file-earmark-pdf"></i>
+          <span>CV subido</span>
+          <a [href]="cvUrl" target="_blank" class="cv-link">Ver CV</a>
+        </div>
+        <ng-template #noCv>
+          <div class="no-cv">No has subido tu CV aún</div>
+        </ng-template>
+        <div class="cv-upload">
+          <input type="file" id="cvFile" (change)="onCvSelected($event)" accept=".pdf,.doc,.docx" style="display: none;" />
+          <label for="cvFile" class="upload-button">
+            <i class="bi bi-upload"></i>
+            {{ cvUrl ? 'Cambiar CV' : 'Subir CV' }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Links -->
+    <div class="form-section">
+      <h3>Enlaces y Redes Sociales</h3>
+      <div class="form-group">
+        <label for="linkedinUrl">
+          <i class="bi bi-linkedin"></i>
+          LinkedIn
+        </label>
+        <input type="url" id="linkedinUrl" formControlName="linkedinUrl"
+          placeholder="https://www.linkedin.com/in/tu-perfil">
+      </div>
+
+      <div class="form-group" *ngIf="user.rol === 'estudiante'">
+        <label for="githubUrl">
+          <i class="bi bi-github"></i>
+          GitHub
+        </label>
+        <input type="url" id="githubUrl" formControlName="githubUrl"
+          placeholder="https://github.com/tu-usuario">
+      </div>
+
+      <div class="form-group">
+        <label for="sitioWebPersonal">
+          <i class="bi bi-globe"></i>
+          Sitio Web Personal
+        </label>
+        <input type="url" id="sitioWebPersonal" formControlName="sitioWebPersonal"
+          placeholder="https://www.tu-sitio-web.com">
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-actions">
+      <button type="submit" class="save-button" [disabled]="profileForm.invalid || loading">
+        <span *ngIf="!loading">
+          <i class="bi bi-check-circle"></i>
+          Guardar Cambios
+        </span>
+        <span *ngIf="loading" class="loading-spinner">
+          <i class="bi bi-arrow-repeat spin"></i>
+          Guardando...
+        </span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Logout Button -->
+  <div class="logout-section">
+    <button class="logout-button" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      Cerrar Sesión
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="message" class="message" [ngClass]="{'success': message.includes('correctamente'), 'error': message.includes('Error')}">
+    <i class="bi" [ngClass]="{'bi-check-circle': message.includes('correctamente'), 'bi-exclamation-triangle': message.includes('Error')}"></i>
+    {{ message }}
+  </div>
+</div>
+
+<ng-template #loadingOrLoginPrompt>
+  <div class="loading-container">
+    <div *ngIf="loading" class="loading-spinner">
+      <i class="bi bi-arrow-repeat spin"></i>
+      <p>Cargando perfil...</p>
+    </div>
+    <div *ngIf="!loading" class="no-auth">
+      <i class="bi bi-shield-x"></i>
+      <p>No estás autenticado o el perfil no está disponible.</p>
+      <a routerLink="/login" class="login-link">Iniciar Sesión</a>
+    </div>
+  </div>
+</ng-template>

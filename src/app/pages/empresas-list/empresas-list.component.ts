@@ -5,6 +5,9 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EmpresasService } from '../../core/services/empresas.service';
 import { Empresa } from '../../core/models/empresa.model';
+import { AuthService } from '../../core/services/auth.service';
+import { Usuario } from '../../core/models/usuario.model';
+import { Observable } from 'rxjs';
 
 
 @Component({
@@ -13,11 +16,19 @@ import { Empresa } from '../../core/models/empresa.model';
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="container mt-4">
-      <div class="row mb-4">
-        <div class="col-12">
+      <div class="row mb-4 align-items-center">
+        <div class="col-12 col-md-8">
           <h2 class="mb-4">
             <i class="bi bi-building"></i> Empresas Registradas
           </h2>
+        </div>
+        <div class="col-12 col-md-4 text-md-end mb-3 mb-md-0">
+          <ng-container *ngIf="userData$ | async">
+            <a routerLink="/empresas-form" class="btn btn-primary">
+              <i class="bi bi-plus-lg"></i>
+              <span class="ms-2">Crear Empresa</span>
+            </a>
+          </ng-container>
         </div>
       </div>
 
@@ -146,20 +157,23 @@ import { Empresa } from '../../core/models/empresa.model';
     }
     .text-truncate-3 {
       display: -webkit-box;
-      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
       overflow: hidden;
     }
   `]
 })
 export class EmpresasListComponent implements OnInit {
   private empresasService = inject(EmpresasService);
+  private authService = inject(AuthService);
 
   empresas: Empresa[] = [];
   empresasFiltradas: Empresa[] = [];
   searchText = '';
   filtroSector = '';
   loading = true;
+  userData$: Observable<Usuario | null> = this.authService.userData$;
 
   ngOnInit(): void {
     this.cargarEmpresas();

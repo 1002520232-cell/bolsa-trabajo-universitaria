@@ -20,12 +20,19 @@ export const authGuard: CanActivateFn = (
         return true;
       } else {
         // Usuario no autenticado, redirigir a login con returnUrl
-        console.log('Usuario no autenticado, redirigiendo a login');
-        router.navigate(['/login'], { 
-          queryParams: { 
-            returnUrl: state.url 
-          }
-        });
+        console.log('Usuario no autenticado');
+        // Si el usuario intentó ir a 'user-profile', enviarlo a 'home' en lugar de a 'login'
+        if (state.url === '/user-profile' || state.url?.startsWith('/user-profile?')) {
+          console.log('Redirigiendo a /home en vez de /login para /user-profile');
+          router.navigate(['/home']);
+        } else {
+          console.log('Redirigiendo a /login');
+          router.navigate(['/login'], { 
+            queryParams: { 
+              returnUrl: state.url 
+            }
+          });
+        }
         return false;
       }
     })

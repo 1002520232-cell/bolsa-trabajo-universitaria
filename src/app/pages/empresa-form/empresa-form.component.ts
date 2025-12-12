@@ -1,10 +1,12 @@
 // src/app/pages/empresa-form/empresa-form.component.ts
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { EmpresasService } from '../../core/services/empresas.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-empresa-form',
@@ -22,6 +24,12 @@ import { AuthService } from '../../core/services/auth.service';
               </h3>
             </div>
             <div class="card-body p-4">
+              <div *ngIf="draftRestored" class="alert alert-warning d-flex justify-content-between align-items-center">
+                <div>Se restauró un borrador guardado automáticamente.</div>
+                <div>
+                  <button class="btn btn-sm btn-outline-secondary me-2" (click)="discardDraft()">Descartar borrador</button>
+                </div>
+              </div>
               <form [formGroup]="empresaForm" (ngSubmit)="onSubmit()">
                 
                 <h5 class="mb-3">Información Básica</h5>
@@ -198,6 +206,9 @@ export class EmpresaFormComponent implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  private autosaveSub: Subscription | null = null;
+  private draftKey = 'empresaFormDraft';
+  draftRestored = false;
 
   ngOnInit(): void {
     this.initForm();
@@ -206,6 +217,79 @@ export class EmpresaFormComponent implements OnInit {
     if (this.empresaId) {
       this.isEditMode = true;
       this.cargarEmpresa(this.empresaId);
+    }
+    // leer queryParams para prefill cuando se viene desde Admin -> Usuarios
+    this.route.queryParams.subscribe(async params => {
+      if (!params) return;
+      const fromUser = params['fromUser'];
+      if (fromUser) {
+        try {
+          const user = await this.authService.getUserById(fromUser);
+          if (user) {
+            const nombre = user.empresaNombre || `${user.nombre} ${user.apellido}`;
+            this.empresaForm.patchValue({
+              nombre: nombre,
+              ubicacion: user.empresaUbicacion || '',
+              descripcion: user.empresaDescripcion || '',
+              email: user.email || '',
+              telefono: user.telefono || '',
+              sitioWeb: user.empresaSitioWeb || user.sitioWebPersonal || ''
+            });
+          }
+        } catch (err) {
+          console.error('Error al obtener usuario para prefill empresa:', err);
+        }
+      }
+    });
+    // load draft
+    this.loadDraft();
+
+    // autosave on changes
+    this.autosaveSub = this.empresaForm.valueChanges.pipe(
+      debounceTime(1000),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+    ).subscribe(() => this.saveDraft());
+  }
+
+  ngOnDestroy(): void {
+    if (this.autosaveSub) this.autosaveSub.unsubscribe();
+  }
+
+  private getDraftKey(): string {
+    return this.empresaId ? `${this.draftKey}_${this.empresaId}` : this.draftKey;
+  }
+
+  private saveDraft(): void {
+    try {
+      const value = this.empresaForm.getRawValue();
+      localStorage.setItem(this.getDraftKey(), JSON.stringify(value));
+    } catch (err) {
+      console.error('Error saving draft empresa:', err);
+    }
+  }
+
+  private loadDraft(): void {
+    try {
+      const raw = localStorage.getItem(this.getDraftKey());
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      const isEmpty = Object.values(this.empresaForm.getRawValue()).every(v => v === null || v === '' || (Array.isArray(v) && v.length === 0));
+      if (isEmpty) {
+        this.empresaForm.patchValue(data);
+        this.draftRestored = true;
+      }
+    } catch (err) {
+      console.error('Error loading draft empresa:', err);
+    }
+  }
+
+  discardDraft(): void {
+    try {
+      localStorage.removeItem(this.getDraftKey());
+      this.draftRestored = false;
+      if (!this.isEditMode) this.empresaForm.reset();
+    } catch (err) {
+      console.error('Error discarding draft empresa:', err);
     }
   }
 
@@ -253,6 +337,8 @@ export class EmpresaFormComponent implements OnInit {
           await this.empresasService.updateEmpresa(this.empresaId, empresaData);
           this.loading = false;
           this.successMessage = 'Empresa actualizada exitosamente';
+          // limpiar draft
+          localStorage.removeItem(this.getDraftKey());
           setTimeout(() => this.router.navigate(['/empresas', this.empresaId!]), 2000);
         } catch (error: any) {
           this.loading = false;
@@ -264,6 +350,8 @@ export class EmpresaFormComponent implements OnInit {
           const id = await this.empresasService.createEmpresa(empresaData);
           this.loading = false;
           this.successMessage = 'Empresa creada exitosamente';
+          // limpiar draft
+          localStorage.removeItem(this.getDraftKey());
           setTimeout(() => this.router.navigate(['/empresas', id]), 2000);
         } catch (error: any) {
           this.loading = false;

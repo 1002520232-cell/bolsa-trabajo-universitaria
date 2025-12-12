@@ -16,6 +16,7 @@ export interface Usuario {
   empresaSitioWeb?: string;
   // Profile fields
   imagenUrl?: string;
+  avatarKey?: string;
   cvUrl?: string;
   habilidades?: string[];
   descripcion?: string;

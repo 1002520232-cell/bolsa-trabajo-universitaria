@@ -14,6 +14,16 @@ import { AuthService } from '../../../core/services/auth.service';
       <div class="header">
         <h1>Gestión de Usuarios</h1>
         <p>Administra todos los usuarios registrados en la plataforma</p>
+        <div class="header-actions">
+          <a routerLink="/ofertas-form" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle"></i>
+            Nueva Oferta (Empresa)
+          </a>
+          <a routerLink="/empresas-form" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-building-add"></i>
+            Crear Empresa
+          </a>
+        </div>
       </div>
 
       <div class="stats-cards">
@@ -103,6 +113,15 @@ import { AuthService } from '../../../core/services/auth.service';
               <i class="bi bi-pencil"></i>
               Editar
             </button>
+            <!-- Admin actions per user: allow creating offers or company from user -->
+            <a *ngIf="usuario.rol === 'empresa'" [routerLink]="['/ofertas-form']" [queryParams]="{ empresaNombre: usuario.empresaNombre }" class="btn-edit">
+              <i class="bi bi-plus-circle"></i>
+              Nueva Oferta
+            </a>
+            <a *ngIf="usuario.rol === 'empresa'" [routerLink]="['/empresas-form']" [queryParams]="{ fromUser: usuario.uid }" class="btn-toggle-role">
+              <i class="bi bi-building"></i>
+              Crear Empresa
+            </a>
             <button
               class="btn-toggle-role"
               (click)="toggleRole(usuario.uid!, usuario.rol)">
@@ -139,6 +158,9 @@ import { AuthService } from '../../../core/services/auth.service';
     .header p {
       color: #666;
     }
+
+    .header-actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+
 
     .stats-cards {
       display: grid;

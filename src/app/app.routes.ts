@@ -7,8 +7,8 @@ import { homeGuard } from './core/guards/home.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [authGuard],
+    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+    canActivate: [homeGuard],
     pathMatch: 'full'
   },
   {
@@ -88,7 +88,8 @@ export const routes: Routes = [
   {
     path: 'user-profile',
     loadComponent: () => import('./pages/user-profile/user-profile.component').then(m => m.UserProfileComponent),
-    title: 'Perfil de Usuario'
+    canActivate: [authGuard],
+    title: 'Bolsa Work'
   },
   {
     path: 'admin/dashboard',

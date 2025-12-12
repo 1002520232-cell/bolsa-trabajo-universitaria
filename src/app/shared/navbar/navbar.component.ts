@@ -708,6 +708,7 @@ export class NavbarComponent {
       this.authService.logout().subscribe({
         next: () => {
           this.closeDropdown();
+          this.router.navigate(['/']);
         },
         error: (error) => console.error('Error al cerrar sesión:', error)
       });

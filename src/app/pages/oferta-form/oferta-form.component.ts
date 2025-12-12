@@ -1,10 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { OfertasService } from '../../core/services/ofertas.service';
 import { EmpresasService } from '../../core/services/empresas.service';
 import { Empresa } from '../../core/models/empresa.model';
+import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-oferta-form',
@@ -22,6 +24,12 @@ import { Empresa } from '../../core/models/empresa.model';
               </h3>
             </div>
             <div class="card-body p-4">
+              <div *ngIf="draftRestored" class="alert alert-warning d-flex justify-content-between align-items-center">
+                <div>Se restauró un borrador guardado automáticamente.</div>
+                <div>
+                  <button class="btn btn-sm btn-outline-secondary me-2" (click)="discardDraft()">Descartar borrador</button>
+                </div>
+              </div>
               <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
                 <!-- Información básica -->
                 <h5 class="mb-3">Información Básica</h5>
@@ -131,15 +139,42 @@ export class OfertaFormComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   imagePreview: string | null = null;
+  // query params used to prefill form when coming from Admin -> Usuarios
+  prefillParams: any = null;
+  private autosaveSub: Subscription | null = null;
+  private draftKey = 'ofertaFormDraft';
+  draftRestored = false;
 
   ngOnInit(): void {
     this.initForm();
     this.cargarEmpresas();
+    // leer queryParams para prefill
+    this.route.queryParams.subscribe(params => {
+      this.prefillParams = params || null;
+      if (this.prefillParams?.titulo) {
+        this.ofertaForm.patchValue({ titulo: this.prefillParams.titulo });
+      }
+      // try apply after empresas load (cargarEmpresas llamará tryApply)
+    });
+    // cargar draft si existe
+    this.loadDraft();
+
+    // suscribir cambios del formulario para auto-guardar
+    this.autosaveSub = this.ofertaForm.valueChanges.pipe(
+      debounceTime(1000),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+    ).subscribe(() => this.saveDraft());
     
     this.ofertaId = this.route.snapshot.paramMap.get('id');
     if (this.ofertaId) {
       this.isEditMode = true;
       this.cargarOferta(this.ofertaId);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.autosaveSub) {
+      this.autosaveSub.unsubscribe();
     }
   }
 
@@ -177,9 +212,51 @@ export class OfertaFormComponent implements OnInit {
     this.empresasService.getEmpresas().subscribe({
       next: (empresas) => {
         this.empresas = empresas;
+        // intentar aplicar prefill si hay params
+        this.tryApplyEmpresaPrefill();
+        // aplicar defaults adicionales
+        this.applyDefaultsFromEmpresa();
       },
       error: (error) => console.error('Error al cargar empresas:', error)
     });
+  }
+
+  private tryApplyEmpresaPrefill(): void {
+    if (!this.prefillParams || !this.empresas || this.empresas.length === 0) return;
+    const { empresaNombre, empresaId } = this.prefillParams;
+    if (empresaId) {
+      const e = this.empresas.find(x => x.id === empresaId);
+      if (e) this.ofertaForm.patchValue({ empresaId: e.id });
+    } else if (empresaNombre) {
+      const e = this.empresas.find(x => (x.nombre || '').toLowerCase() === (empresaNombre || '').toLowerCase());
+      if (e) this.ofertaForm.patchValue({ empresaId: e.id });
+    }
+  }
+
+  // apply defaults like title or ubicacion when empresa info available
+  private applyDefaultsFromEmpresa(): void {
+    if (!this.prefillParams || !this.empresas || this.empresas.length === 0) return;
+    const { empresaNombre, empresaId } = this.prefillParams;
+    let e = null as Empresa | null;
+    if (empresaId) {
+      e = this.empresas.find(x => x.id === empresaId) || null;
+    } else if (empresaNombre) {
+      e = this.empresas.find(x => (x.nombre || '').toLowerCase() === (empresaNombre || '').toLowerCase()) || null;
+    }
+
+    if (e) {
+      // set ubicacion if empty
+      const currentUbicacion = this.ofertaForm.get('ubicacion')?.value;
+      if (!currentUbicacion && e.ubicacion) {
+        this.ofertaForm.patchValue({ ubicacion: e.ubicacion });
+      }
+
+      // set a sensible default title if empty
+      const currentTitulo = this.ofertaForm.get('titulo')?.value;
+      if ((!currentTitulo || currentTitulo.trim() === '') && e.nombre) {
+        this.ofertaForm.patchValue({ titulo: `Puesto en ${e.nombre}` });
+      }
+    }
   }
 
   cargarOferta(id: string): void {
@@ -246,6 +323,8 @@ export class OfertaFormComponent implements OnInit {
         this.ofertasService.updateOferta(this.ofertaId, ofertaData).then(() => {
           this.loading = false;
           this.successMessage = 'Oferta actualizada exitosamente';
+          // limpiar draft
+          localStorage.removeItem(this.getDraftKey());
           setTimeout(() => this.router.navigate(['/ofertas', this.ofertaId!]), 2000);
         }).catch(error => {
           this.loading = false;
@@ -256,6 +335,8 @@ export class OfertaFormComponent implements OnInit {
         this.ofertasService.createOferta(ofertaData).then((id) => {
           this.loading = false;
           this.successMessage = 'Oferta creada exitosamente';
+          // limpiar draft
+          localStorage.removeItem(this.getDraftKey());
           setTimeout(() => this.router.navigate(['/ofertas', id]), 2000);
         }).catch(error => {
           this.loading = false;
@@ -263,6 +344,49 @@ export class OfertaFormComponent implements OnInit {
           this.errorMessage = 'Error al crear la oferta';
         });
       }
+    }
+  }
+
+  private getDraftKey(): string {
+    // include ofertaId in key when editing
+    return this.ofertaId ? `${this.draftKey}_${this.ofertaId}` : this.draftKey;
+  }
+
+  private saveDraft(): void {
+    try {
+      const value = this.ofertaForm.getRawValue();
+      localStorage.setItem(this.getDraftKey(), JSON.stringify(value));
+    } catch (err) {
+      console.error('Error saving draft oferta:', err);
+    }
+  }
+
+  private loadDraft(): void {
+    try {
+      const raw = localStorage.getItem(this.getDraftKey());
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      // only apply if form is mostly empty and not editing
+      const isEmpty = Object.values(this.ofertaForm.getRawValue()).every(v => v === null || v === '' || (Array.isArray(v) && v.length === 0));
+      if (isEmpty) {
+        this.ofertaForm.patchValue(data);
+        this.draftRestored = true;
+      }
+    } catch (err) {
+      console.error('Error loading draft oferta:', err);
+    }
+  }
+
+  discardDraft(): void {
+    try {
+      localStorage.removeItem(this.getDraftKey());
+      this.draftRestored = false;
+      // reset form to empty only if not editing
+      if (!this.isEditMode) {
+        this.ofertaForm.reset();
+      }
+    } catch (err) {
+      console.error('Error discarding draft oferta:', err);
     }
   }
 }

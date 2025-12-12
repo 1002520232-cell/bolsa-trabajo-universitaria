@@ -12,1017 +12,8 @@ import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme
   selector: 'app-user-profile',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, ThemeToggleComponent],
-  template: `
-    <div class="profile-container" *ngIf="user; else loadingOrLoginPrompt">
-      <div class="profile-header">
-        <h2>Mi Perfil</h2>
-        <div class="theme-toggle-container">
-          <app-theme-toggle></app-theme-toggle>
-        </div>
-        <div class="role-badge" [ngClass]="user.rol">{{ user.rol | titlecase }}</div>
-      </div>
-
-      <!-- Profile Image Section -->
-      <div class="profile-image-section">
-        <img *ngIf="profileImageUrl; else defaultImage" [src]="profileImageUrl" alt="Profile Image" class="profile-image" />
-        <ng-template #defaultImage>
-          <div class="profile-image-placeholder">
-            <i class="bi bi-person-circle"></i>
-          </div>
-        </ng-template>
-        <div class="image-upload">
-          <input type="file" id="profileImage" (change)="onFileSelected($event)" accept="image/*" style="display: none;" />
-          <label for="profileImage" class="upload-button">
-            <i class="bi bi-camera"></i>
-            Cambiar foto
-          </label>
-        </div>
-      </div>
-
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-        <!-- Basic Information -->
-        <div class="form-section">
-          <h3>Información Básica</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="nombre">
-                <i class="bi bi-person"></i>
-                Nombre
-              </label>
-              <input type="text" id="nombre" formControlName="nombre" placeholder="Tu nombre">
-            </div>
-            <div class="form-group">
-              <label for="apellido">
-                <i class="bi bi-person"></i>
-                Apellido
-              </label>
-              <input type="text" id="apellido" formControlName="apellido" placeholder="Tu apellido">
-            </div>
-          </div>
-
-          <div class="form-group" *ngIf="user.rol === 'estudiante'">
-            <label for="carrera">
-              <i class="bi bi-mortarboard"></i>
-              Carrera
-            </label>
-            <input type="text" id="carrera" formControlName="carrera" placeholder="Ej: Ingeniería de Sistemas">
-          </div>
-
-          <div class="form-group">
-            <label for="telefono">
-              <i class="bi bi-telephone"></i>
-              Teléfono
-            </label>
-            <input type="tel" id="telefono" formControlName="telefono" placeholder="+57 300 123 4567">
-          </div>
-
-          <div class="form-group">
-            <label for="descripcion">
-              <i class="bi bi-file-text"></i>
-              Descripción
-            </label>
-            <textarea id="descripcion" formControlName="descripcion" rows="4"
-              placeholder="Cuéntanos sobre ti, tus intereses y objetivos profesionales..."></textarea>
-          </div>
-        </div>
-
-        <!-- Company Information (for empresas) -->
-        <div class="form-section" *ngIf="user.rol === 'empresa'">
-          <h3>Información de la Empresa</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="empresaNombre">
-                <i class="bi bi-building"></i>
-                Nombre de la Empresa
-              </label>
-              <input type="text" id="empresaNombre" formControlName="empresaNombre" placeholder="Nombre de tu empresa">
-            </div>
-            <div class="form-group">
-              <label for="empresaUbicacion">
-                <i class="bi bi-geo-alt"></i>
-                Ubicación
-              </label>
-              <input type="text" id="empresaUbicacion" formControlName="empresaUbicacion" placeholder="Ciudad, País">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="empresaSitioWeb">
-              <i class="bi bi-globe"></i>
-              Sitio Web de la Empresa
-            </label>
-            <input type="url" id="empresaSitioWeb" formControlName="empresaSitioWeb" placeholder="https://www.tuempresa.com">
-          </div>
-
-          <div class="form-group">
-            <label for="empresaDescripcion">
-              <i class="bi bi-file-text"></i>
-              Descripción de la Empresa
-            </label>
-            <textarea id="empresaDescripcion" formControlName="empresaDescripcion" rows="4"
-              placeholder="Describe tu empresa, su misión, visión y lo que buscan en sus empleados..."></textarea>
-          </div>
-        </div>
-
-        <!-- Skills Section (for estudiantes) -->
-        <div class="form-section" *ngIf="user.rol === 'estudiante'">
-          <h3>Habilidades</h3>
-          <div class="skills-section">
-            <div class="skills-input">
-              <input type="text" [(ngModel)]="newSkill" [ngModelOptions]="{standalone: true}"
-                placeholder="Ej: JavaScript, Python, Liderazgo..." (keyup.enter)="addSkill()">
-              <button type="button" (click)="addSkill()" class="add-skill-btn">
-                <i class="bi bi-plus"></i>
-              </button>
-            </div>
-            <div class="skills-list">
-              <span *ngFor="let skill of skills; let i = index" class="skill-tag">
-                {{ skill }}
-                <button type="button" (click)="removeSkill(i)" class="remove-skill">
-                  <i class="bi bi-x"></i>
-                </button>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- CV Upload Section (for estudiantes) -->
-        <div class="form-section" *ngIf="user.rol === 'estudiante'">
-          <h3>Curriculum Vitae</h3>
-          <div class="cv-section">
-            <div *ngIf="cvUrl; else noCv" class="cv-preview">
-              <i class="bi bi-file-earmark-pdf"></i>
-              <span>CV subido</span>
-              <a [href]="cvUrl" target="_blank" class="cv-link">Ver CV</a>
-            </div>
-            <ng-template #noCv>
-              <div class="no-cv">No has subido tu CV aún</div>
-            </ng-template>
-            <div class="cv-upload">
-              <input type="file" id="cvFile" (change)="onCvSelected($event)" accept=".pdf,.doc,.docx" style="display: none;" />
-              <label for="cvFile" class="upload-button">
-                <i class="bi bi-upload"></i>
-                {{ cvUrl ? 'Cambiar CV' : 'Subir CV' }}
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Social Links -->
-        <div class="form-section">
-          <h3>Enlaces y Redes Sociales</h3>
-          <div class="form-group">
-            <label for="linkedinUrl">
-              <i class="bi bi-linkedin"></i>
-              LinkedIn
-            </label>
-            <input type="url" id="linkedinUrl" formControlName="linkedinUrl"
-              placeholder="https://www.linkedin.com/in/tu-perfil">
-          </div>
-
-          <div class="form-group" *ngIf="user.rol === 'estudiante'">
-            <label for="githubUrl">
-              <i class="bi bi-github"></i>
-              GitHub
-            </label>
-            <input type="url" id="githubUrl" formControlName="githubUrl"
-              placeholder="https://github.com/tu-usuario">
-          </div>
-
-          <div class="form-group">
-            <label for="sitioWebPersonal">
-              <i class="bi bi-globe"></i>
-              Sitio Web Personal
-            </label>
-            <input type="url" id="sitioWebPersonal" formControlName="sitioWebPersonal"
-              placeholder="https://www.tu-sitio-web.com">
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="form-actions">
-          <button type="submit" class="save-button" [disabled]="profileForm.invalid || loading">
-            <span *ngIf="!loading">
-              <i class="bi bi-check-circle"></i>
-              Guardar Cambios
-            </span>
-            <span *ngIf="loading" class="loading-spinner">
-              <i class="bi bi-arrow-repeat spin"></i>
-              Guardando...
-            </span>
-          </button>
-        </div>
-      </form>
-
-      <!-- Logout Button -->
-      <div class="logout-section">
-        <button class="logout-button" (click)="logout()">
-          <i class="bi bi-box-arrow-right"></i>
-          Cerrar Sesión
-        </button>
-      </div>
-
-      <!-- Messages -->
-      <div *ngIf="message" class="message" [ngClass]="{'success': message.includes('correctamente'), 'error': message.includes('Error')}">
-        <i class="bi" [ngClass]="{'bi-check-circle': message.includes('correctamente'), 'bi-exclamation-triangle': message.includes('Error')}"></i>
-        {{ message }}
-      </div>
-    </div>
-
-    <ng-template #loadingOrLoginPrompt>
-      <div class="loading-container">
-        <div *ngIf="loading" class="loading-spinner">
-          <i class="bi bi-arrow-repeat spin"></i>
-          <p>Cargando perfil...</p>
-        </div>
-        <div *ngIf="!loading" class="no-auth">
-          <i class="bi bi-shield-x"></i>
-          <p>No estás autenticado o el perfil no está disponible.</p>
-          <a routerLink="/login" class="login-link">Iniciar Sesión</a>
-        </div>
-      </div>
-    </ng-template>
-  `,
-  styles: [`
-    .profile-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: var(--bg-primary);
-      color: var(--text-primary-theme);
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-
-    .profile-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .theme-toggle-container {
-      margin-left: auto;
-      margin-right: 1rem;
-    }
-
-    .profile-header h2 {
-      margin: 0;
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .role-badge {
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .role-badge.estudiante {
-      background: rgba(102, 126, 234, 0.2);
-      color: #667eea;
-      border: 1px solid rgba(102, 126, 234, 0.3);
-    }
-
-    .role-badge.empresa {
-      background: rgba(118, 75, 162, 0.2);
-      color: #764ba2;
-      border: 1px solid rgba(118, 75, 162, 0.3);
-    }
-
-    .profile-image-section {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .profile-image {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid var(--accent-primary);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-
-    .profile-image-placeholder {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 4rem;
-      margin: 0 auto;
-      border: 4px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .image-upload {
-      margin-top: 1rem;
-    }
-
-    .upload-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      background: rgba(102, 126, 234, 0.1);
-      border: 2px solid rgba(102, 126, 234, 0.3);
-      border-radius: 12px;
-      color: var(--accent-primary);
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .upload-button:hover {
-      background: rgba(102, 126, 234, 0.2);
-      border-color: var(--accent-primary);
-      transform: translateY(-2px);
-    }
-
-    .form-section {
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .form-section h3 {
-      margin: 0 0 1.5rem 0;
-      color: var(--accent-primary);
-      font-size: 1.2rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.8);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.5rem;
-    }
-
-    .form-group label i {
-      color: var(--accent-primary);
-      font-size: 1rem;
-    }
-
-    .form-input, textarea {
-      width: 100%;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      color: white;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .form-input:focus, textarea:focus {
-      outline: none;
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--accent-primary);
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .form-input::placeholder, textarea::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .skills-section {
-      margin-top: 1rem;
-    }
-
-    .skills-input {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .skills-input input {
-      flex: 1;
-      padding: 0.75rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      color: white;
-    }
-
-    .add-skill-btn {
-      padding: 0.75rem 1rem;
-      background: var(--accent-primary);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .add-skill-btn:hover {
-      background: var(--accent-secondary);
-      transform: translateY(-1px);
-    }
-
-    .skills-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .skill-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      background: rgba(102, 126, 234, 0.2);
-      border: 1px solid rgba(102, 126, 234, 0.3);
-      border-radius: 20px;
-      color: var(--accent-primary);
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .remove-skill {
-      background: none;
-      border: none;
-      color: var(--accent-primary);
-      cursor: pointer;
-      padding: 0;
-      font-size: 0.8rem;
-      transition: color 0.3s ease;
-    }
-
-    .remove-skill:hover {
-      color: #ff4757;
-    }
-
-    .cv-section {
-      text-align: center;
-    }
-
-    .cv-preview {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      padding: 1rem;
-      background: rgba(46, 204, 113, 0.1);
-      border: 1px solid rgba(46, 204, 113, 0.3);
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-
-    .cv-preview i {
-      font-size: 2rem;
-      color: #2ecc71;
-    }
-
-    .cv-link {
-      color: #2ecc71;
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.3s ease;
-    }
-
-    .cv-link:hover {
-      color: #27ae60;
-    }
-
-    .no-cv {
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px dashed rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 1rem;
-    }
-
-    .form-actions {
-      text-align: center;
-      margin: 2rem 0;
-    }
-
-    .save-button {
-      padding: 1rem 2rem;
-      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .save-button:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    }
-
-    .save-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .logout-section {
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .logout-button {
-      width: 100%;
-      padding: 1rem;
-      background: rgba(255, 71, 87, 0.1);
-      border: 2px solid rgba(255, 71, 87, 0.3);
-      border-radius: 12px;
-      color: #ff4757;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .logout-button:hover {
-      background: rgba(255, 71, 87, 0.2);
-      border-color: #ff4757;
-      transform: translateY(-1px);
-    }
-
-    .message {
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .message.success {
-      background: rgba(46, 204, 113, 0.1);
-      border: 1px solid rgba(46, 204, 113, 0.3);
-      color: #2ecc71;
-    }
-
-    .message.error {
-      background: rgba(255, 71, 87, 0.1);
-      border: 1px solid rgba(255, 71, 87, 0.3);
-      color: #ff4757;
-    }
-
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 50vh;
-      color: white;
-    }
-
-    .loading-container .loading-spinner {
-      font-size: 3rem;
-      color: var(--accent-primary);
-      margin-bottom: 1rem;
-    }
-
-    .loading-container p {
-      margin: 0.5rem 0;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .no-auth {
-      text-align: center;
-    }
-
-    .no-auth i {
-      font-size: 4rem;
-      color: #ff4757;
-      margin-bottom: 1rem;
-    }
-
-    .login-link {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.75rem 1.5rem;
-      background: var(--accent-primary);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .login-link:hover {
-      background: var(--accent-secondary);
-      transform: translateY(-1px);
-    }
-
-    .spin {
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* Enhanced Responsive Design */
-    @media (max-width: 1200px) {
-      /* Large tablets and small desktops */
-      .profile-container {
-        max-width: 900px;
-        margin: 1.5rem auto;
-        padding: 1.5rem;
-      }
-
-      .profile-image {
-        width: 120px;
-        height: 120px;
-      }
-
-      .profile-image-placeholder {
-        width: 120px;
-        height: 120px;
-        font-size: 3rem;
-      }
-    }
-
-    @media (max-width: 992px) {
-      /* Tablets */
-      .profile-container {
-        max-width: 700px;
-        margin: 1.5rem auto;
-        padding: 1.5rem;
-      }
-
-      .profile-header h2 {
-        font-size: 1.75rem;
-      }
-
-      .profile-image {
-        width: 120px;
-        height: 120px;
-      }
-
-      .profile-image-placeholder {
-        width: 120px;
-        height: 120px;
-        font-size: 3rem;
-      }
-
-      .form-section {
-        padding: 1.25rem;
-      }
-
-      .form-row {
-        gap: 0.75rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      /* Mobile landscape and small tablets */
-      .profile-container {
-        margin: 1rem;
-        padding: 1rem;
-        max-width: none;
-      }
-
-      .profile-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-        padding-bottom: 0.75rem;
-      }
-
-      .profile-header h2 {
-        font-size: 1.5rem;
-      }
-
-      .theme-toggle-container {
-        margin-left: 0;
-        margin-right: 0;
-      }
-
-      .profile-image-section {
-        margin-bottom: 1.5rem;
-      }
-
-      .profile-image,
-      .profile-image-placeholder {
-        width: 100px;
-        height: 100px;
-        font-size: 2.5rem;
-      }
-
-      .form-section {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .form-section h3 {
-        font-size: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-
-      .form-group {
-        margin-bottom: 1.25rem;
-      }
-
-      .form-group label {
-        font-size: 0.8rem;
-      }
-
-      .form-input,
-      textarea {
-        padding: 0.875rem;
-        font-size: 0.9rem;
-      }
-
-      .skills-input {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .skills-input input {
-        padding: 0.625rem;
-        font-size: 0.85rem;
-      }
-
-      .add-skill-btn {
-        padding: 0.625rem 0.875rem;
-        font-size: 0.8rem;
-      }
-
-      .skill-tag {
-        padding: 0.375rem 0.625rem;
-        font-size: 0.75rem;
-      }
-
-      .cv-preview {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.75rem;
-        padding: 0.75rem;
-      }
-
-      .cv-preview i {
-        font-size: 1.5rem;
-      }
-
-      .upload-button {
-        padding: 0.625rem 1rem;
-        font-size: 0.8rem;
-      }
-
-      .save-button {
-        padding: 0.875rem 1.5rem;
-        font-size: 0.9rem;
-      }
-
-      .logout-button {
-        padding: 0.875rem;
-        font-size: 0.9rem;
-      }
-
-      .message {
-        padding: 0.875rem;
-        font-size: 0.85rem;
-      }
-    }
-
-    @media (max-width: 576px) {
-      /* Mobile portrait */
-      .profile-container {
-        margin: 0.5rem;
-        padding: 0.75rem;
-      }
-
-      .profile-header h2 {
-        font-size: 1.25rem;
-      }
-
-      .profile-image,
-      .profile-image-placeholder {
-        width: 80px;
-        height: 80px;
-        font-size: 2rem;
-      }
-
-      .form-section {
-        padding: 0.75rem;
-        margin-bottom: 1.25rem;
-      }
-
-      .form-section h3 {
-        font-size: 0.9rem;
-        margin-bottom: 0.875rem;
-      }
-
-      .form-group label {
-        font-size: 0.75rem;
-      }
-
-      .form-input,
-      textarea {
-        padding: 0.75rem;
-        font-size: 0.85rem;
-      }
-
-      textarea {
-        min-height: 80px;
-      }
-
-      .skills-list {
-        gap: 0.375rem;
-      }
-
-      .skill-tag {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.7rem;
-      }
-
-      .cv-preview {
-        padding: 0.625rem;
-      }
-
-      .upload-button {
-        padding: 0.5rem 0.875rem;
-        font-size: 0.75rem;
-      }
-
-      .save-button {
-        padding: 0.75rem 1.25rem;
-        font-size: 0.85rem;
-      }
-
-      .logout-button {
-        padding: 0.75rem;
-        font-size: 0.85rem;
-      }
-
-      .loading-container .loading-spinner {
-        font-size: 2rem;
-      }
-
-      .no-auth i {
-        font-size: 3rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      /* Small mobile */
-      .profile-container {
-        margin: 0.25rem;
-        padding: 0.5rem;
-      }
-
-      .profile-header h2 {
-        font-size: 1.125rem;
-      }
-
-      .role-badge {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.7rem;
-      }
-
-      .profile-image,
-      .profile-image-placeholder {
-        width: 70px;
-        height: 70px;
-        font-size: 1.75rem;
-      }
-
-      .form-section {
-        padding: 0.625rem;
-        margin-bottom: 1rem;
-      }
-
-      .form-section h3 {
-        font-size: 0.85rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .form-group {
-        margin-bottom: 1rem;
-      }
-
-      .form-group label {
-        font-size: 0.7rem;
-      }
-
-      .form-input,
-      textarea {
-        padding: 0.625rem;
-        font-size: 0.8rem;
-      }
-
-      .skills-input input {
-        padding: 0.5rem;
-        font-size: 0.8rem;
-      }
-
-      .add-skill-btn {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.75rem;
-      }
-
-      .skill-tag {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.65rem;
-      }
-
-      .cv-preview {
-        padding: 0.5rem;
-      }
-
-      .cv-preview i {
-        font-size: 1.25rem;
-      }
-
-      .upload-button {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.7rem;
-      }
-
-      .save-button {
-        padding: 0.625rem 1rem;
-        font-size: 0.8rem;
-      }
-
-      .logout-button {
-        padding: 0.625rem;
-        font-size: 0.8rem;
-      }
-
-      .message {
-        padding: 0.75rem;
-        font-size: 0.8rem;
-      }
-
-      .loading-container p {
-        font-size: 0.9rem;
-      }
-
-      .login-link {
-        padding: 0.625rem 1rem;
-        font-size: 0.85rem;
-      }
-    }
-  `]
+  templateUrl: './user-profile.component.html',
+  styleUrls: ['./user-profile.component.css']
 })
 export class UserProfileComponent {
   private authService = inject(AuthService);
@@ -1033,11 +24,29 @@ export class UserProfileComponent {
 
   user: Usuario | null = null;
   profileImageUrl: string | null = null;
+  profileAvatarKey: string | null = null;
   cvUrl: string | null = null;
+  cvFile: File | null = null;
   skills: string[] = [];
   newSkill = '';
   loading = false;
   message: string | null = null;
+  avatars = [
+    { key: 'dog', label: '🐶' },
+    { key: 'cat', label: '🐱' },
+    { key: 'panda', label: '🐼' },
+    { key: 'monkey', label: '🐵' },
+    { key: 'tiger', label: '🐯' },
+    { key: 'frog', label: '🐸' },
+    { key: 'rabbit', label: '🐰' },
+    { key: 'cow', label: '🐮' }
+  ];
+
+  get avatarLabel(): string | null {
+    if (!this.profileAvatarKey) return null;
+    const found = this.avatars.find(a => a.key === this.profileAvatarKey);
+    return found ? found.label : null;
+  }
 
   profileForm = this.fb.group({
     nombre: ['', Validators.required],
@@ -1097,6 +106,7 @@ export class UserProfileComponent {
       if (this.user) {
         console.log('✅ Datos del usuario cargados:', this.user);
         this.profileImageUrl = this.user.imagenUrl || null;
+        this.profileAvatarKey = (this.user as any).avatarKey || null;
         this.cvUrl = this.user.cvUrl || null;
         this.skills = this.user.habilidades || [];
 
@@ -1150,29 +160,43 @@ export class UserProfileComponent {
     }
   }
 
-  async onCvSelected(event: Event) {
+  onCvSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
+    // Store the file temporarily, will be uploaded on form submission
+    this.cvFile = file;
+    this.message = 'CV seleccionado. Recuerda guardar los cambios.';
+  }
+
+  async deleteProfileImage() {
+    if (!this.user) return;
+    if (!this.profileImageUrl) return;
+
     this.loading = true;
     this.message = null;
-    const path = `cvs/${this.user?.uid}_${Date.now()}.${file.name.split('.').pop()}`;
 
     try {
-      const url = await this.storageService.uploadFile(file, path);
-      this.cvUrl = url;
-
-      if (this.user) {
-        await this.authService.updateUserProfile(this.user.uid, { cvUrl: url });
-        this.message = 'CV subido correctamente.';
-      }
+      // Only remove the URL from the user's Firestore document.
+      await this.authService.updateUserProfile(this.user.uid, { imagenUrl: undefined, avatarKey: undefined });
+      this.profileImageUrl = null;
+      this.profileAvatarKey = null;
+      this.message = 'Imagen de perfil eliminada.';
+      // reload user data to keep local state in sync
+      await this.loadUser();
     } catch (error) {
-      console.error('Error al subir CV:', error);
-      this.message = 'Error al subir el CV.';
+      console.error('Error al eliminar imagen de perfil:', error);
+      this.message = 'Error al eliminar la imagen.';
     } finally {
       this.loading = false;
     }
+  }
+
+  selectAvatar(key: string) {
+    this.profileAvatarKey = key;
+    this.profileImageUrl = null;
+    this.message = 'Avatar seleccionado. Recuerda guardar los cambios.';
   }
 
   addSkill() {
@@ -1193,6 +217,14 @@ export class UserProfileComponent {
     this.loading = true;
     this.message = null;
 
+    // Upload CV if selected
+    let cvUrl = this.cvUrl;
+    if (this.cvFile) {
+      const path = `cvs/${this.user?.uid}_${Date.now()}.${this.cvFile.name.split('.').pop()}`;
+      cvUrl = await this.storageService.uploadFile(this.cvFile, path);
+      this.cvFile = null; // Clear the file after upload
+    }
+
     const formValue = this.profileForm.value;
     const updates: Partial<Usuario> = {
       nombre: formValue.nombre || '',
@@ -1202,7 +234,10 @@ export class UserProfileComponent {
       linkedinUrl: formValue.linkedinUrl || undefined,
       githubUrl: formValue.githubUrl || undefined,
       sitioWebPersonal: formValue.sitioWebPersonal || undefined,
-      habilidades: this.skills.length > 0 ? this.skills : undefined
+      habilidades: this.skills.length > 0 ? this.skills : undefined,
+      avatarKey: this.profileAvatarKey || undefined,
+      imagenUrl: this.profileImageUrl || undefined,
+      cvUrl: cvUrl || undefined
     };
 
     // Add role-specific fields
@@ -1229,7 +264,7 @@ export class UserProfileComponent {
 
   logout() {
     this.authService.logout().subscribe(() => {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/']);
     });
   }
 }

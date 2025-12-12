@@ -177,8 +177,9 @@ import { HighlightDirective } from '../../shared/directives/highlight.directive'
     }
     .text-truncate-3 {
       display: -webkit-box;
-      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
       overflow: hidden;
     }
   `]

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { trigger, state, style, transition, animate, stagger, query } from '@angular/animations';
 import { AuthService } from '../../core/services/auth.service';
+import { Router } from '@angular/router';
 import { OfertasService } from '../../core/services/ofertas.service';
 import { PostulacionesService } from '../../core/services/postulaciones.service';
 import { Usuario } from '../../core/models/usuario.model';
@@ -37,6 +38,7 @@ import { Postulacion } from '../../core/models/postulacion.model';
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
+  private router = inject(Router);
   private ofertasService = inject(OfertasService);
   private postulacionesService = inject(PostulacionesService);
 
@@ -85,6 +87,15 @@ export class DashboardComponent implements OnInit {
       return (this.user.createdAt as any).toDate().toLocaleDateString('es-ES');
     } catch {
       return 'N/A';
+    }
+  }
+
+  openProfile(event: Event) {
+    event.preventDefault();
+    if (this.user) {
+      this.router.navigate(['/user-profile']);
+    } else {
+      this.router.navigate(['/home']);
     }
   }
 }

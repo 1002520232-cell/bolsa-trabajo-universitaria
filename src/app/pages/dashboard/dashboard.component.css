@@ -149,6 +149,32 @@
   margin: 0;
 }
 
+/* Create Cards - Special styling for new offer/company creation */
+.create-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.create-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+  border: none;
+}
+
+.create-card .action-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.create-card h6 {
+  color: white;
+}
+
+.create-card p {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* Enhanced Responsive Design */
 @media (max-width: 1200px) {
   /* Large tablets and small desktops */

@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { OfertasService } from '../../core/services/ofertas.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PostulacionesService } from '../../core/services/postulaciones.service';
@@ -48,7 +49,7 @@ import { EstadoPipe } from '../../shared/pipes/estado.pipe';
                   </p>
                 </div>
                 <div class="col-md-4 text-end">
-                  <a routerLink="/user-profile" class="btn btn-outline-primary btn-sm">
+                  <a href="#" (click)="openProfile($event)" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-pencil me-1"></i>
                     Editar Perfil
                   </a>
@@ -332,6 +333,7 @@ export class MisOfertasComponent implements OnInit {
 
   private ofertasService = inject(OfertasService);
   private authService = inject(AuthService);
+  private router = inject(Router);
   private postulacionesService = inject(PostulacionesService);
 
   ofertas: OfertaLaboral[] = [];
@@ -461,6 +463,16 @@ export class MisOfertasComponent implements OnInit {
     } catch (error) {
       console.error('Error al actualizar estado', error);
       alert('Error al actualizar estado de la postulación');
+    }
+  }
+
+  openProfile(event: Event) {
+    event.preventDefault();
+    const isAuth = this.authService.isAuthenticated();
+    if (isAuth) {
+      this.router.navigate(['/user-profile']);
+    } else {
+      this.router.navigate(['/home']);
     }
   }
 }
