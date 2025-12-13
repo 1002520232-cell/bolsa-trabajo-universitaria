@@ -1,26 +1,45 @@
-/* ========== FIX CRÍTICO PARA MÓVIL ========== */
+/* ========== RESET Y BASE ========== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary: #667eea;
+  --secondary: #764ba2;
+  --accent-primary: #667eea;
+  --accent-secondary: #764ba2;
+  --dark-bg: #0f0f0f;
+  --darker-bg: #0a0a0a;
+  --card-bg: #1a1a1a;
+  --hover-bg: #252525;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  max-width: 100%;
 }
 
 html {
   overflow-x: hidden;
   width: 100%;
   height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  overflow-x: hidden;
-  width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--dark-bg);
+  color: var(--text-primary);
   min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+  width: 100%;
   position: relative;
-}
-
-/* Prevenir scroll horizontal en TODOS los elementos */
-* {
-  max-width: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 img, video, iframe {
@@ -52,42 +71,6 @@ img, video, iframe {
     padding-right: 0.75rem;
     padding-left: 0.75rem;
   }
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
-:root {
-  --primary: #667eea;
-  --secondary: #764ba2;
-  --accent-primary: #667eea;
-  --accent-secondary: #764ba2;
-  --dark-bg: #0f0f0f;
-  --darker-bg: #0a0a0a;
-  --card-bg: #1a1a1a;
-  --hover-bg: #252525;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-muted: rgba(255, 255, 255, 0.5);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--dark-bg);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
-  line-height: 1.6;
 }
 
 /* Typography */
@@ -958,5 +941,139 @@ body {
   section {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+  }
+}
+/* ===== AGREGAR 2 MÁS + CORTAR TEXTOS ===== */
+
+/* Tarjetas de ofertas y empresas → mismo estilo, textos cortados */
+.oferta-card,
+.empresa-card,
+.oferta-item,
+.empresa-item {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 0 !important; /* cuadrado */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+  color: var(--text-primary) !important;
+  padding: 1.2rem !important;
+  margin-bottom: 1rem !important;
+  max-width: 100% !important;
+  overflow: hidden !important; /* ✅ no deja salir el texto */
+  transition: all 0.3s ease !important;
+}
+
+/* Hover: se iluminan */
+.oferta-card:hover,
+.empresa-card:hover,
+.oferta-item:hover,
+.empresa-item:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Títulos → una línea, con "..." si es largo */
+.oferta-titulo,
+.empresa-nombre,
+.oferta-card h5,
+.empresa-card h5 {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  font-size: 1rem !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 0.4rem !important;
+}
+
+/* Descripción → máximo 2 líneas, con "..." */
+.oferta-descripcion,
+.empresa-descripcion,
+.oferta-card p,
+.empresa-card p {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important; /* ✅ máximo 2 líneas */
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: 0.85rem !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 0.4rem !important;
+}
+
+/* Textos pequeños → cortados */
+.oferta-small,
+.empresa-small,
+.oferta-card .small,
+.empresa-card .small,
+.oferta-card .text-muted,
+.empresa-card .text-muted {
+  font-size: 0.75rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  color: var(--text-muted) !important;
+}
+
+/* Botones → cuadrados, gris medio */
+.oferta-card .btn,
+.empresa-card .btn,
+.oferta-item .btn,
+.empresa-item .btn {
+  border-radius: 0 !important; /* ✅ cuadrado */
+  background: #888888 !important;
+  border: none !important;
+  color: #ffffff !important;
+  padding: 0.4rem 1rem !important;
+  font-size: 0.8rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.oferta-card .btn:hover,
+.empresa-card .btn:hover,
+.oferta-item .btn:hover,
+.empresa-item .btn:hover {
+  background: #aaaaaa !important;
+}
+
+/* Grid → 2 columnas más, mismo tamaño */
+.ofertas-grid,
+.empresas-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  gap: 1.5rem !important; /* ✅ espacio entre tarjetas */
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Agrega 2 tarjetas más (ejemplo) */
+.ofertas-grid::after,
+.empresas-grid::after {
+  content: "";
+  display: block;
+  height: 0;
+  width: 0;
+}
+
+/* Responsive: se adapta pero no toca los bordes */
+@media (max-width: 768px) {
+  .oferta-card,
+  .empresa-card,
+  .oferta-item,
+  .empresa-item {
+    padding: 1rem !important;
+    max-width: 100% !important;
+  }
+
+  .oferta-titulo,
+  .empresa-nombre {
+    font-size: 0.95rem !important;
+  }
+
+  .oferta-descripcion,
+  .empresa-descripcion {
+    font-size: 0.8rem !important;
   }
 }

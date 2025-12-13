@@ -43,11 +43,13 @@ export const routes: Routes = [
   },
   {
     path: 'ofertas-form',
-    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent)
+    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent),
+    canActivate: [authGuard]
   },
   {
     path: 'ofertas-form/:id',
-    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent)
+    loadComponent: () => import('./pages/oferta-form/oferta-form.component').then(m => m.OfertaFormComponent),
+    canActivate: [authGuard]
   },
   {
     path: 'empresas',

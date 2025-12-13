@@ -1,1 +1,273 @@
-<p>oferta-form works!</p>
+<div class="form-container">
+  <div class="form-card">
+    <!-- Header -->
+    <div class="form-header">
+      <h2>
+        <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+        {{ isEditMode ? 'Editar' : 'Nueva' }} Oferta Laboral
+      </h2>
+    </div>
+
+    <!-- Body -->
+    <div class="form-body">
+      <!-- Alerts -->
+      <div *ngIf="draftRestored" class="alert alert-warning">
+        <div>
+          <i class="bi bi-exclamation-triangle"></i>
+          Se restauró un borrador guardado automáticamente.
+        </div>
+        <button type="button" class="btn-sm" (click)="discardDraft()">Descartar</button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="bi bi-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success">
+        <i class="bi bi-check-circle"></i>
+        {{ successMessage }}
+      </div>
+
+      <!-- Loading Overlay -->
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>{{ uploadingImage ? 'Subiendo imagen...' : 'Guardando oferta...' }}</p>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
+        <!-- Información Básica -->
+        <section class="form-section">
+          <h3>Información Básica</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="empresaId" class="required">Empresa</label>
+              <select 
+                class="form-control" 
+                id="empresaId"
+                formControlName="empresaId"
+                [class.is-invalid]="isFieldInvalid('empresaId')">
+                <option value="">Seleccione una empresa</option>
+                <option *ngFor="let empresa of empresas" [value]="empresa.id">
+                  {{ empresa.nombre }}
+                </option>
+              </select>
+              <small class="field-hint">
+                ¿No encuentras tu empresa? 
+                <a routerLink="/empresas-form">Créala aquí</a>
+              </small>
+              <div class="field-error" *ngIf="isFieldInvalid('empresaId')">
+                La empresa es requerida
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="titulo" class="required">Título del Puesto</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="titulo"
+                formControlName="titulo"
+                placeholder="Ej: Desarrollador Frontend Junior"
+                [class.is-invalid]="isFieldInvalid('titulo')">
+              <div class="field-error" *ngIf="isFieldInvalid('titulo')">
+                El título es requerido
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="descripcion" class="required">Descripción</label>
+            <textarea 
+              class="form-control" 
+              id="descripcion"
+              formControlName="descripcion"
+              rows="5"
+              placeholder="Describe el puesto, responsabilidades y perfil buscado (mínimo 50 caracteres)..."
+              [class.is-invalid]="isFieldInvalid('descripcion')">
+            </textarea>
+            <small class="field-hint">
+              {{ ofertaForm.get('descripcion')?.value?.length || 0 }} / 50 caracteres mínimo
+            </small>
+            <div class="field-error" *ngIf="isFieldInvalid('descripcion')">
+              <span *ngIf="ofertaForm.get('descripcion')?.errors?.['required']">
+                La descripción es requerida
+              </span>
+              <span *ngIf="ofertaForm.get('descripcion')?.errors?.['minlength']">
+                Mínimo 50 caracteres
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="imagen">Imagen (Opcional)</label>
+            <input 
+              type="file" 
+              class="form-control"
+              id="imagen"
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              [disabled]="uploadingImage">
+            <div *ngIf="imagePreview" class="image-preview">
+              <img [src]="imagePreview" alt="Preview">
+              <button type="button" class="btn-remove" (click)="removeImage()">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Detalles del Puesto -->
+        <section class="form-section">
+          <h3>Detalles del Puesto</h3>
+          
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label for="categoria" class="required">Categoría</label>
+              <select
+                class="form-control"
+                id="categoria"
+                formControlName="categoria"
+                [class.is-invalid]="isFieldInvalid('categoria')">
+                <option value="">Seleccione</option>
+                <option value="practicas">Prácticas</option>
+                <option value="medio-tiempo">Medio Tiempo</option>
+                <option value="tiempo-completo">Tiempo Completo</option>
+                <option value="freelance">Freelance</option>
+              </select>
+              <div class="field-error" *ngIf="isFieldInvalid('categoria')">
+                Requerido
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="modalidad" class="required">Modalidad</label>
+              <select
+                class="form-control"
+                id="modalidad"
+                formControlName="modalidad"
+                [class.is-invalid]="isFieldInvalid('modalidad')">
+                <option value="">Seleccione</option>
+                <option value="presencial">Presencial</option>
+                <option value="remoto">Remoto</option>
+                <option value="hibrido">Híbrido</option>
+              </select>
+              <div class="field-error" *ngIf="isFieldInvalid('modalidad')">
+                Requerido
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="ubicacion" class="required">Ubicación</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="ubicacion"
+                formControlName="ubicacion"
+                placeholder="Ciudad, País"
+                [class.is-invalid]="isFieldInvalid('ubicacion')">
+              <div class="field-error" *ngIf="isFieldInvalid('ubicacion')">
+                Requerido
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="salario">Salario (Opcional)</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="salario"
+                formControlName="salario"
+                placeholder="Ej: 3000"
+                min="0">
+            </div>
+
+            <div class="form-group">
+              <label for="vacantes" class="required">Vacantes</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="vacantes"
+                formControlName="vacantes"
+                min="1"
+                [class.is-invalid]="isFieldInvalid('vacantes')">
+              <div class="field-error" *ngIf="isFieldInvalid('vacantes')">
+                Mínimo 1 vacante
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaInicio">Fecha de Inicio (Opcional)</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="fechaInicio"
+                formControlName="fechaInicio">
+            </div>
+
+            <div class="form-group">
+              <label for="fechaFin">Fecha de Fin (Opcional)</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="fechaFin"
+                formControlName="fechaFin">
+            </div>
+          </div>
+        </section>
+
+        <!-- Requisitos -->
+        <section class="form-section">
+          <h3>Requisitos</h3>
+          
+          <div formArrayName="requisitos">
+            <div *ngFor="let req of requisitos.controls; let i = index" class="requisito-item">
+              <div class="form-group flex-grow">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [formControlName]="i"
+                  placeholder="Ej: Conocimientos en JavaScript"
+                  [class.is-invalid]="req.invalid && req.touched">
+                <div class="field-error" *ngIf="req.invalid && req.touched">
+                  Este campo es requerido
+                </div>
+              </div>
+              <button 
+                type="button" 
+                class="btn-icon btn-danger" 
+                (click)="removeRequisito(i)"
+                [disabled]="requisitos.length === 1"
+                title="Eliminar requisito">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-outline" (click)="addRequisito()">
+            <i class="bi bi-plus-circle"></i>
+            Agregar Requisito
+          </button>
+        </section>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" routerLink="/ofertas" [disabled]="loading">
+            <i class="bi bi-x-circle"></i>
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i class="bi" [ngClass]="isEditMode ? 'bi-check-circle' : 'bi-plus-circle'"></i>
+            {{ loading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
